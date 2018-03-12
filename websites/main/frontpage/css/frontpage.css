@@ -1,16 +1,16 @@
 body,h1 {
-    font-family: "Raleway", sans-serif;
-    color:white;
+        font-family: "Raleway", sans-serif;
+        color:white;
 }
 h1 {
-    font-size: 50px;
+        font-size: 50px;
 }
 body, html {
-    height: 100%;
-    margin-top: 0px;
-    margin-right: 0px;
-    margin-bottom: 0px;
-    margin-left: 0px;
+        height: 100%;
+        margin-top: 0px;
+        margin-right: 0px;
+        margin-bottom: 0px;
+        margin-left: 0px;
 }
 .background-img {
     background-image: url('images/fog-bg.jpg');
@@ -22,6 +22,33 @@ body, html {
     position: absolute;
     top: 15px;
     left: 16px;
+}
+.send-email input {
+    border: 0;
+    outline:none;
+    border-bottom: 2px solid #1976D2;
+    color:white;
+    background: transparent;
+}
+.send {
+    background:transparent; 
+    border:none;
+    outline:none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 15px;
+}
+.send:focus {
+    border:none;
+    cursor:pointer;
+}
+.send:active {
+  transform: translateY(4px);
+}
+.send-email input::placeholder {
+    color: white;
 }
 .bottomleft {
     position: absolute;
