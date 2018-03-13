@@ -7,7 +7,7 @@
 <% 
      
 %>
-<%@page contentType="text/html" session="false" pageEncoding="UTF-8"%>
+<%@page contentType="text/html" session="true" pageEncoding="UTF-8"%>
 
 <html>
 <title>Under Construction</title>
@@ -18,24 +18,14 @@
 <body>
 <div class="background-img">
   <div class="topleft">
-    <div class="send-email">
-        <form method="post" action="createEmailRecord">
-            <%--<input type="text" name="email-to-register" placeholder="email"/> --%>
-            <button class="send" type="submit">register</button>
-            <p><% request.getSession().getAttribute("subscription");%></p>
-        </form>
-    </div>
   </div>
   <div class="middle">
-    <h1>Coming Soon</h1>
+    <h1>Welcome: ${user_email}</h1>
     <hr>
-    <p id="countdown"></p>
   </div>
   <div class="bottomleft">
     <p stlye="color:white">Powered by Island Stream media</p>
   </div>
 </div>
-<script type="text/javascript" src="timer.js"></script>
-<script type="text/javascript" src="send-button.js"></script>
 </body>
 </html>

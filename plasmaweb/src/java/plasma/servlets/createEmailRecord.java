@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.sql.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.http.HttpSession;
 
 
 /**
@@ -22,6 +23,7 @@ import java.util.logging.Logger;
  */
 public class createEmailRecord extends HttpServlet {
 
+    
     public void init() throws ServletException {
      
    }
@@ -29,6 +31,8 @@ public class createEmailRecord extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
+      HttpSession session = request.getSession();
         
       // Set response type
       response.setContentType("text/html");
@@ -41,7 +45,7 @@ public class createEmailRecord extends HttpServlet {
       // Sql query
       String sql = "insert into email_registry(emailval) values (?)";
       
-      // Get the email   
+      // Get the user data
       String user_email = request.getParameter("email-to-register");
       
       // Initialize connection var
@@ -73,18 +77,20 @@ public class createEmailRecord extends HttpServlet {
           pst.close();
         
       }catch(SQLException e) {
-          System.out.print("<h1>" + e + "</h1>");
+          System.out.print(e);
       }finally {
         // Always close the database connection.
          try {
             if (conn != null) conn.close();
          } catch (SQLException e){
-                System.out.println("<h1>" + e + "</h1>");
+                System.out.println(e);
          }
       }
-      
-      PrintWriter out = response.getWriter();
-      out.println("<h1>" + user_email + "</h1>");
+      // Create a session
+      session.setAttribute("subscription","Subscribed!");
+      session.setAttribute("user_email",user_email);
+      response.sendRedirect("/plasmaweb/landing.jsp");
+
       
     }
 
