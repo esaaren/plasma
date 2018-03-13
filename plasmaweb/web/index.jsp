@@ -34,6 +34,5 @@
   </div>
 </div>
 <script type="text/javascript" src="timer.js"></script>
-<script type="text/javascript" src="send-button.js"></script>
 </body>
 </html>
