@@ -18,9 +18,14 @@
 <body>
 <div class="background-img">
   <div class="topleft">
+      <div class="register">
+        <form method="post" action="login.jsp">
+            <button class="send" type="submit">log out</button>
+        </form>
+    </div>
   </div>
   <div class="middle">
-    <h1>Welcome: ${user_email}</h1>
+    <h1>Welcome: ${username}</h1>
     <hr>
   </div>
   <div class="bottomleft">

@@ -1,9 +1,43 @@
+form {
+  margin:0 auto;
+  width:300px
+}
+input {
+  color:white;
+  background:transparent;
+  margin-bottom:3px;
+  padding:10px;
+  width: 100%;
+  border:1px solid #CCC
+}
+input::placeholder {
+    color:white;
+}
+.login-button {
+  padding:10px
+}
+label {
+  cursor:pointer
+}
+#form-switch {
+  display:none
+}
+#register-form {
+  display:none
+}
+#form-switch:checked~#register-form {
+  display:block
+}
+#form-switch:checked~#login-form {
+  display:none
+}
 body,h1 {
         font-family: "Raleway", sans-serif;
         color:white;
 }
 h1 {
         font-size: 50px;
+        float:left;
 }
 body, html {
         height: 100%;

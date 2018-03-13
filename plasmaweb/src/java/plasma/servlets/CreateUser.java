@@ -21,7 +21,7 @@ import javax.servlet.http.HttpSession;
  *
  * @author erik.saarenvirta
  */
-public class createEmailRecord extends HttpServlet {
+public class CreateUser extends HttpServlet {
 
     
     public void init() throws ServletException {
@@ -42,12 +42,17 @@ public class createEmailRecord extends HttpServlet {
       String user = "postgres";
       String password = "admin";
       
-      // Sql query
-      String sql = "insert into email_registry(emailval) values (?)";
+      // Create user sql
+      String sql = "insert into users(username, email, password,state,subscribed) values (?,?,?,?,?)";
       
-      // Get the user data
-      String user_email = request.getParameter("email-to-register");
+      // Session sql
       
+      
+      // Get the register data
+      String username = request.getParameter("username-register");
+      String user_email = request.getParameter("email-register");
+      String user_password = request.getParameter("password-register");
+       
       // Initialize connection var
       Connection conn = null;
       
@@ -58,13 +63,17 @@ public class createEmailRecord extends HttpServlet {
           try {
               Class.forName("org.postgresql.Driver");
           } catch (ClassNotFoundException ex) {
-              Logger.getLogger(createEmailRecord.class.getName()).log(Level.SEVERE, null, ex);
+              Logger.getLogger(CreateUser.class.getName()).log(Level.SEVERE, null, ex);
           }
           conn = DriverManager.getConnection(url, user, password);
           conn.setAutoCommit(true);
           //Prepare the statement
           PreparedStatement pst = conn.prepareStatement(sql);
-          pst.setString(1,user_email);
+          pst.setString(1,username);
+          pst.setString(2,user_email);
+          pst.setString(3,user_password);
+          pst.setInt(4,1);
+          pst.setBoolean(5,true);
           
           //Check if inserted or not
           int numRowsChanged = pst.executeUpdate();
@@ -87,8 +96,8 @@ public class createEmailRecord extends HttpServlet {
          }
       }
       // Create a session
-      session.setAttribute("subscription","Subscribed!");
-      session.setAttribute("user_email",user_email);
+      session.setAttribute("subscription","Subscribed");
+      session.setAttribute("username",username);
       response.sendRedirect("/plasmaweb/landing.jsp");
 
       

@@ -1,0 +1,19 @@
+CREATE TABLE users (
+  userid          SERIAL PRIMARY KEY,
+  username        VARCHAR(20) NOT NULL,
+  email           VARCHAR(255) NOT NULL,
+  password        VARCHAR(20) NOT NULL,
+  state           int,
+  subscribed      boolean
+);
+
+CREATE TABLE sessions (
+
+  sessionpkey   serial primary key,
+  user_fk       int references users(userid),
+  sessionid     varchar(255),
+  status        varchar(20),
+  startdate     timestamp,
+  enddate       timestamp
+
+);

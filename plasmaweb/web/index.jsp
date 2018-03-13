@@ -18,11 +18,9 @@
 <body>
 <div class="background-img">
   <div class="topleft">
-    <div class="send-email">
-        <form method="post" action="createEmailRecord">
-            <%--<input type="text" name="email-to-register" placeholder="email"/> --%>
-            <button class="send" type="submit">register</button>
-            <p><% request.getSession().getAttribute("subscription");%></p>
+    <div class="register">
+        <form method="post" action="login.jsp">
+            <button class="send" type="submit">log in / register</button>
         </form>
     </div>
   </div>
