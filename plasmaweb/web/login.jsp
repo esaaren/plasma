@@ -25,7 +25,7 @@
       </div>
   </div>
   <div class="middle">
-   <h1>Login</h1>
+   <h1>log in</h1>
    <input type='checkbox' id='form-switch'>
     <form id='login-form' action="" method='post'>
         <input type="text" name="username-login" placeholder="Username" required>
@@ -43,7 +43,7 @@
         </form>
   </div>
   <div class="bottomleft">
-    <p stlye="color:white">Powered by Island Stream media</p>
+    <p stlye="color:white">powered by Island Stream Media</p>
   </div>
 </div>
 <script language='javascript' type='text/javascript'>

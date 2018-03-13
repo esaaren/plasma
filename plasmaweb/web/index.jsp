@@ -30,7 +30,7 @@
     <p id="countdown"></p>
   </div>
   <div class="bottomleft">
-    <p stlye="color:white">Powered by Island Stream media</p>
+    <p stlye="color:white">powered by Island Stream Media</p>
   </div>
 </div>
 <script type="text/javascript" src="timer.js"></script>
