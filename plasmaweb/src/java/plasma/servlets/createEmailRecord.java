@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -22,18 +24,8 @@ public class createEmailRecord extends HttpServlet {
 
     public void init() throws ServletException {
      
-       
-      
    }
-
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+   
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -42,7 +34,7 @@ public class createEmailRecord extends HttpServlet {
       response.setContentType("text/html");
       
       // Set connection vars
-      String url = "jdbc:postgresql://35.203.11.125/email_registry";
+      String url = "jdbc:postgresql://35.203.11.125/postgres";
       String user = "postgres";
       String password = "admin";
       
@@ -55,10 +47,17 @@ public class createEmailRecord extends HttpServlet {
       // Initialize connection var
       Connection conn = null;
       
+      
       // Execute Insert 
       try {
-          //Get connection 
+          //Get connection
+          try {
+              Class.forName("org.postgresql.Driver");
+          } catch (ClassNotFoundException ex) {
+              Logger.getLogger(createEmailRecord.class.getName()).log(Level.SEVERE, null, ex);
+          }
           conn = DriverManager.getConnection(url, user, password);
+          conn.setAutoCommit(true);
           //Prepare the statement
           PreparedStatement pst = conn.prepareStatement(sql);
           pst.setString(1,user_email);
@@ -74,18 +73,19 @@ public class createEmailRecord extends HttpServlet {
           pst.close();
         
       }catch(SQLException e) {
-          System.out.print(e);
+          System.out.print("<h1>" + e + "</h1>");
       }finally {
         // Always close the database connection.
          try {
             if (conn != null) conn.close();
          } catch (SQLException e){
-                System.out.println(e);
+                System.out.println("<h1>" + e + "</h1>");
          }
       }
-          
-      //PrintWriter out = response.getWriter();
-      //out.println("<h1>" + user_email + "</h1>");
+      
+      PrintWriter out = response.getWriter();
+      out.println("<h1>" + user_email + "</h1>");
+      
     }
 
 
