@@ -12,11 +12,20 @@ import java.util.logging.Logger;
     private String hashedPassword;
    
     
-    // Set the password at declaration and automatically generate the salt based on length given
+    // For a new password auto generate the salt based on length given and initialize hashed password
     Password (String password, int length) {
         this.password = password;
         this.salt = generateSalt(length);
         this.hashedPassword=generateHashedPassword(this.password, this.salt);
+    }
+    
+    // For an existing password, return the hash for comparison with the DB
+    
+    Password (String password, String salt) {
+        this.password = password;
+        this.salt = salt;
+        this.hashedPassword=generateHashedPassword(this.password, this.salt);
+
     }
 
     // Getters + Setters 
@@ -84,6 +93,9 @@ import java.util.logging.Logger;
         Password password = new Password("erik",10);
         System.out.println(password.getSalt());
         System.out.println(password.getHashedPassword());
+        
+        Password passwordcheck = new Password("erik",password.getSalt());
+        System.out.println(passwordcheck.getHashedPassword());
     }
     
 }

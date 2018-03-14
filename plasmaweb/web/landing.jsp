@@ -25,7 +25,7 @@
     </div>
   </div>
   <div class="middle">
-    <h1>Welcome: ${username}</h1>
+    <h1>${welcome_msg} : ${username}</h1>
     <hr>
   </div>
   <div class="bottomleft">

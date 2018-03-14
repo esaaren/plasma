@@ -78,14 +78,12 @@ public class CreateUser extends HttpServlet {
           pst.setString(1,username);
           ResultSet rs = pst.executeQuery(); 
          
-          System.out.println("Hi");
           if (!rs.next() ) {
              user_exists = "false";
           }
           else {
              user_exists = "true";
           }
-          System.out.println("Hi2");
           pst.close();
           
       }catch(SQLException e) {
@@ -100,7 +98,7 @@ public class CreateUser extends HttpServlet {
       }
       
       if (user_exists.equals("true")) { 
-           session.setAttribute("user_exists", "*Username already taken");
+           session.setAttribute("login_page_msg", "*Username already taken");
            response.sendRedirect("/plasmaweb/login.jsp");
            return;
              
@@ -159,9 +157,10 @@ public class CreateUser extends HttpServlet {
                 System.out.println(e);
          }
       }
-      // Create a session
+      // Set session vars
       session.setAttribute("subscription","Subscribed");
-      session.setAttribute("user_exists", "");
+      session.setAttribute("login_page_msg", "");
+      session.setAttribute("welcome_msg", "Welcome");
       session.setAttribute("username",username);
       response.sendRedirect("/plasmaweb/landing.jsp");
 

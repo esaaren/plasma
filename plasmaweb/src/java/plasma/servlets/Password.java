@@ -21,6 +21,13 @@ import java.util.logging.Logger;
     }
     
     // For an existing password, return the hash for comparison with the DB
+    
+    Password (String password, String salt) {
+        this.password = password;
+        this.salt = salt;
+        this.hashedPassword=generateHashedPassword(this.password, this.salt);
+
+    }
 
     // Getters + Setters 
     public String getPassword() {

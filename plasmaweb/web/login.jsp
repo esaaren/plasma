@@ -27,7 +27,7 @@
   <div class="middle">
    <h1>log in</h1>
    <input type='checkbox' id='form-switch'>
-    <form id='login-form' action="" method='post'>
+    <form id='login-form' action="Login" method='post'>
         <input type="text" name="username-login" placeholder="Username" required>
         <input type="password" name="password-login" placeholder="Password" required>
         <button class="login-button" type="submit">Login</button>
@@ -41,7 +41,7 @@
         <button class="login-button" type='submit'>Register</button>
         <label for='form-switch'>Already Registered?</label>
     </form>
-   <p1 style="height:10px;position:relative;top:20px;font-style:italic;">${user_exists}</p1>
+   <p1 style="height:10px;position:relative;top:20px;font-style:italic;">${login_page_msg}</p1>
   </div>
   <div class="bottomleft">
     <p stlye="color:white">powered by Island Stream Media</p>
