@@ -43,17 +43,25 @@ public class CreateUser extends HttpServlet {
       String password = "admin";
       
       // Create user sql
-      String sql = "insert into users(username, email, password,state,subscribed) values (?,?,?,?,?)";
+      String sql = "insert into users(username, email, password, state,subscribed, salt) values (?,?,?,?,?,?)";
       
       // Session sql
       
       
       // Get the register data
-      String username = request.getParameter("username-register");
-      String user_email = request.getParameter("email-register");
-      String user_password = request.getParameter("password-register");
+      String username = request.getParameter("username-register").trim();
+      String user_email = request.getParameter("email-register").trim();
+      String user_password = request.getParameter("password-register").trim();
+      
+      // Create a hash for the password with salt length 10 
+      
+      Password pass = new Password(user_password,10);
        
-      // Initialize connection var
+      // Get the salt and the password
+      String salt = pass.getSalt();
+      String secure_password = pass.getHashedPassword();
+      
+      // Initialize connection 
       Connection conn = null;
       
       
@@ -71,9 +79,10 @@ public class CreateUser extends HttpServlet {
           PreparedStatement pst = conn.prepareStatement(sql);
           pst.setString(1,username);
           pst.setString(2,user_email);
-          pst.setString(3,user_password);
+          pst.setString(3,secure_password);
           pst.setInt(4,1);
           pst.setBoolean(5,true);
+          pst.setString(6,salt);
           
           //Check if inserted or not
           int numRowsChanged = pst.executeUpdate();
