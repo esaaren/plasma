@@ -19,7 +19,7 @@
 <div class="background-img">
   <div class="topleft">
       <div class="register">
-        <form method="post" action="login.jsp">
+        <form method="post" action="Logout">
             <button class="send" type="submit">log out</button>
         </form>
     </div>

@@ -43,7 +43,11 @@ public class CreateUser extends HttpServlet {
       String password = "admin";
       
       // Create user sql
-      String sql = "insert into users(username, email, password, state,subscribed, salt) values (?,?,?,?,?,?)";
+      String insert_user = "insert into users(username, email, password, state,subscribed, salt) values (?,?,?,?,?,?)";
+      
+      // Check user sql
+      String check_user = "select username from users where username = ?";
+      
       
       // Session sql
       
@@ -52,6 +56,57 @@ public class CreateUser extends HttpServlet {
       String username = request.getParameter("username-register").trim();
       String user_email = request.getParameter("email-register").trim();
       String user_password = request.getParameter("password-register").trim();
+      
+      
+      // Validate if username already exists
+      
+      Connection conn = null;
+      String user_exists = null;
+      
+      
+      try {
+          //Get connection
+          try {
+              Class.forName("org.postgresql.Driver");
+          } catch (ClassNotFoundException ex) {
+              Logger.getLogger(CreateUser.class.getName()).log(Level.SEVERE, null, ex);
+          }
+          conn = DriverManager.getConnection(url, user, password);
+          conn.setAutoCommit(true);
+          //Prepare the statement
+          PreparedStatement pst = conn.prepareStatement(check_user);
+          pst.setString(1,username);
+          ResultSet rs = pst.executeQuery(); 
+         
+          System.out.println("Hi");
+          if (!rs.next() ) {
+             user_exists = "false";
+          }
+          else {
+             user_exists = "true";
+          }
+          System.out.println("Hi2");
+          pst.close();
+          
+      }catch(SQLException e) {
+          System.out.print(e);
+      }finally {
+        // Always close the database connection.
+         try {
+            if (conn != null) conn.close();
+         } catch (SQLException e){
+                System.out.println(e);
+         }
+      }
+      
+      if (user_exists.equals("true")) { 
+           session.setAttribute("user_exists", "*Username already taken");
+           response.sendRedirect("/plasmaweb/login.jsp");
+           return;
+             
+      }
+      
+      
       
       // Create a hash for the password with salt length 10 
       
@@ -62,7 +117,7 @@ public class CreateUser extends HttpServlet {
       String secure_password = pass.getHashedPassword();
       
       // Initialize connection 
-      Connection conn = null;
+     conn = null;
       
       
       // Execute Insert 
@@ -76,7 +131,7 @@ public class CreateUser extends HttpServlet {
           conn = DriverManager.getConnection(url, user, password);
           conn.setAutoCommit(true);
           //Prepare the statement
-          PreparedStatement pst = conn.prepareStatement(sql);
+          PreparedStatement pst = conn.prepareStatement(insert_user);
           pst.setString(1,username);
           pst.setString(2,user_email);
           pst.setString(3,secure_password);
@@ -106,6 +161,7 @@ public class CreateUser extends HttpServlet {
       }
       // Create a session
       session.setAttribute("subscription","Subscribed");
+      session.setAttribute("user_exists", "");
       session.setAttribute("username",username);
       response.sendRedirect("/plasmaweb/landing.jsp");
 
