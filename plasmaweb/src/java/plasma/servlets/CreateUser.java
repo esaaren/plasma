@@ -162,7 +162,7 @@ public class CreateUser extends HttpServlet {
       session.setAttribute("login_page_msg", "");
       session.setAttribute("welcome_msg", "Welcome");
       session.setAttribute("username",username);
-      response.sendRedirect("/plasmaweb/landing.jsp");
+      response.sendRedirect("/plasmaweb/console.jsp");
 
       
     }

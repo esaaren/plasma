@@ -1,8 +1,13 @@
-/* Landing page specific */
+/* Navbar specific */
 
-.topright {
+.topbar {
     position: absolute;
-    top: 15px;
+    top:0px;
+    right:0px;
+}
+.navbar {
+    position: absolute;
+    top: 25px;
     right: 80px;
 }
 
@@ -53,31 +58,4 @@
 /* Change the background color of the dropdown button when the dropdown content is shown */
 .dropdown:hover .drop-button {
     background:transparent;
-}
-
-/* All of the form switching settings below */
-
-#manage-form {
-   display:none;
-   width: 300px;
-}
-#create-form {
-   display:none;
-   width: 300px;
-}
-#upload-form {
-   display:none;
-   width: 300px;
-}
-#run-form {
-   display:none;
-   width: 300px;
-}
-#user-form {
-  display:none;
-   width: 300px;
-}
-#settings-form {
-  display:none;
-  width: 300px;
 }

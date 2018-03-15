@@ -105,7 +105,7 @@ public class Login extends HttpServlet {
                 session.setAttribute("login_page_msg", "");
                 session.setAttribute("welcome_msg", "Welcome back");
                 session.setAttribute("username",username);
-                response.sendRedirect("/plasmaweb/landing.jsp");
+                response.sendRedirect("/plasmaweb/console.jsp");
                
            }
            else {

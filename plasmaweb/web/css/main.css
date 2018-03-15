@@ -2,6 +2,11 @@
     font-family:"Raleway", sans-serif;
     
 }
+.nav-frame{
+    height: 99%;
+    overflow: hidden;
+    width: 100%;
+}
 input::placeholder {
     color:white;
 }
