@@ -1,9 +1,16 @@
 /* Console page specific */
 
-.topright {
+.nav-bar-holder {
     position: absolute;
-    top: 15px;
-    right: 10px;
+    top: 0px;
+    width:100%;
 }
 
-
+.nav-frame{
+    height: 90%;
+    overflow: hidden;
+    width: 100%;
+}
+iframe {
+    width:100%;
+}

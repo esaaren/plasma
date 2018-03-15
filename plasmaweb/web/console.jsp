@@ -18,10 +18,9 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
 <body>
 <div class="background-img">
-  <div class="topright">
+  <div class="nav-bar-holder">
       <iframe class="nav-frame" src="navbar.jsp" style="border:none;"></iframe>
   </div>
-  <hr style="border-color:white;color:white;">
   <div class="middle">
       <form id="landing-msg-form">
         <h1>${welcome_msg} : ${username}</h1>
