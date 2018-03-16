@@ -1,0 +1,13 @@
+#userinfo-address-form, #userinfo-contact-form {
+    display:none;
+}
+.submit-userinfo:hover {
+    cursor:pointer;
+}
+.submit-userinfo {
+    float:right;
+}
+input:focus::placeholder {
+    
+    font-color:black;
+}

@@ -5,6 +5,9 @@
 input::placeholder {
     color:white;
 }
+.searchbar{
+    border-radius: 50px;
+}
 body,h1 {
         color:white;
 }
@@ -20,7 +23,7 @@ body, html {
         margin-left: 0px;
 }
 .background-img {
-    background-image: url('images/fog-bg.jpg');
+    background-image: url('images/mountain-bw-bg.jpg');
     min-height: 100%;
     max-height: 100%;
     min-width:100%;
@@ -70,10 +73,6 @@ label {
     transform: translate(-50%, -50%);
     text-align: center;
 }
-hr {
-    margin: auto;
-    width: 100%;
-}
 input {
   color:white;
   background:transparent;
@@ -81,4 +80,8 @@ input {
   padding:10px;
   width: 100%;
   border:1px solid #CCC
+}
+
+input:focus, button:focus {
+    outline: none;
 }

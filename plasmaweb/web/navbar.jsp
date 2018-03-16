@@ -13,74 +13,35 @@
     </div>
       <div class="navbar">
          <div class="bar-component" id = "left-bar">
-            <button class="drop-button">Plasma Applications
+            <button class="drop-button" id="left-drop-button">P
                 <i class="fall-down"></i>
             </button>
             <div class="dropdown-content">
-                <form method="post" action="">
+                <form method="post" action="" target='_parent'>
                     <button class="send" type="button" onclick="" >Career</button>
                 </form>
-                <form method="post" action="">
+                <form method="post" action="" target='_parent'>
                     <button class="send" type="button" onclick="">Travel</button>
                 </form>
-                <form method="post" action="">
+                <form method="post" action="" target='_parent'>
                     <button class="send" type="button" onclick="">Music</button>
                 </form>
-                <form method="post" action="">
+                <form method="post" action="" target='_parent'>
                     <button class="send" type="button" onclick="">Security</button>
+                </form>
+                <form method="post" action="userinfo.jsp" target='_parent'>
+                    <button class="send" type="submit" onclick="">user info</button>
+                </form>
+                <form method="post" action="personalize.jsp" target='_parent'>
+                    <button class="send" type="submit" onclick="">personalize</button>
+                </form>
+                <form method="post" action="settings.jsp" target='_parent'>
+                    <button class="send" type="submit" onclick="">settings</button>
                 </form>
             </div>
         </div>  
-        <div class="bar-component" id = "data-drop">
-            <button class="drop-button">Data
-                <i class="fall-down"></i>
-            </button>
-            <div class="dropdown-content">
-                <form method="post" action="">
-                    <button class="send" type="button" onclick="">create</button>
-                </form>
-                <form method="post" action="">
-                    <button class="send" type="button" onclick="">input</button>
-                </form>
-                <form method="post" action="">
-                    <button class="send" type="button" onclick="">feedback</button>
-                </form>
-                <form method="post" action="">
-                    <button class="send" type="button" onclick="">upload</button>
-                </form>
-                <form method="post" action="">
-                    <button class="send" type="button" onclick="">download</button>
-                </form>
-            </div>
-        </div>
         <div class="bar-component" id="search-bar">
-              <input type="search" class="textbox" placeholder="Search">        
-        </div>
-        <div class="bar-component" id ="notification-drop">
-            <button class="drop-button">Alerts
-                <i class="fall-down"></i>
-            </button>
-            <div class="dropdown-content">
-                <form method="post" action="" target='_parent'>
-                    <button class="send" type="button" onclick="">main</button>
-                </form>
-                <form method="post" action="" target='_parent'>
-                    <button class="send" type="button" onclick="">notifications</button>
-                </form>
-            </div>
-        </div>
-        <div class="bar-component" id ="profile-drop">
-            <button class="drop-button">Profile
-                <i class="fall-down"></i>
-            </button>
-            <div class="dropdown-content">
-                <form method="post" action="userinfo.jsp" target='_parent'>
-                    <button class="send" type="button" onclick="">user info</button>
-                </form>
-                <form method="post" action="settings.jsp" target='_parent'>
-                    <button class="send" type="button" onclick="">settings</button>
-                </form>
-            </div>
+              <input type="search" class="searchbar" placeholder="Search">        
         </div>
     </div>
 </body>
