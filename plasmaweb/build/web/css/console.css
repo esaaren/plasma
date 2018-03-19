@@ -1,0 +1,16 @@
+/* Console page specific */
+
+.nav-bar-holder {
+    position: absolute;
+    top: 0px;
+    width:100%;
+}
+
+.nav-frame{
+    height: 90%;
+    overflow: hidden;
+    width: 100%;
+}
+iframe {
+    width:100%;
+}

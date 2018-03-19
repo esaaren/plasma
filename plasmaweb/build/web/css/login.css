@@ -1,0 +1,26 @@
+/* Login Page Specific */
+h1{
+    float:left;
+}
+form {
+  margin:0 auto;
+  width:300px
+}
+.login-button {
+  padding:10px
+}
+label {
+  cursor:pointer
+}
+#form-switch {
+  display:none
+}
+#register-form {
+  display:none
+}
+#form-switch:checked~#register-form {
+  display:block
+}
+#form-switch:checked~#login-form {
+  display:none
+}

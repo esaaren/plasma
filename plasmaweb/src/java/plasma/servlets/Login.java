@@ -33,7 +33,7 @@ public class Login extends HttpServlet {
       response.setContentType("text/html");
       
       // Set connection vars
-      String url = "jdbc:postgresql://35.203.11.125/postgres";
+      String url = "jdbc:postgresql://35.203.11.125/postgres?ssl=true";
       String user = "postgres";
       String password = "admin";
       
