@@ -37,10 +37,6 @@ public class CreateUser extends HttpServlet {
       // Set response type
       response.setContentType("text/html");
       
-      // Set connection vars
-      String url = "jdbc:postgresql://35.203.11.125/postgres";
-      String user = "postgres";
-      String password = "admin";
       
       // Create user sql
       String insert_user = "insert into users(username, email, password, state,subscribed, salt) values (?,?,?,?,?,?)";
@@ -60,18 +56,12 @@ public class CreateUser extends HttpServlet {
       
       // Validate if username already exists
       
-      Connection conn = null;
+      Connection conn = ConnectionManager.getConnection();
       String user_exists = null;
       
       
       try {
-          //Get connection
-          try {
-              Class.forName("org.postgresql.Driver");
-          } catch (ClassNotFoundException ex) {
-              Logger.getLogger(CreateUser.class.getName()).log(Level.SEVERE, null, ex);
-          }
-          conn = DriverManager.getConnection(url, user, password);
+          
           conn.setAutoCommit(true);
           //Prepare the statement
           PreparedStatement pst = conn.prepareStatement(check_user);
@@ -86,14 +76,14 @@ public class CreateUser extends HttpServlet {
           }
           pst.close();
           
-      }catch(SQLException e) {
-          System.out.print(e);
+      }catch(SQLException ex) {
+          Logger.getLogger(CreateUser.class.getName()).log(Level.SEVERE, null, ex); 
       }finally {
         // Always close the database connection.
          try {
             if (conn != null) conn.close();
-         } catch (SQLException e){
-                System.out.println(e);
+         } catch (SQLException ex){
+                Logger.getLogger(CreateUser.class.getName()).log(Level.SEVERE, null, ex); 
          }
       }
       
@@ -115,18 +105,11 @@ public class CreateUser extends HttpServlet {
       String secure_password = pass.getHashedPassword();
       
       // Initialize connection 
-     conn = null;
+     conn = ConnectionManager.getConnection();
       
       
       // Execute Insert 
       try {
-          //Get connection
-          try {
-              Class.forName("org.postgresql.Driver");
-          } catch (ClassNotFoundException ex) {
-              Logger.getLogger(CreateUser.class.getName()).log(Level.SEVERE, null, ex);
-          }
-          conn = DriverManager.getConnection(url, user, password);
           conn.setAutoCommit(true);
           //Prepare the statement
           PreparedStatement pst = conn.prepareStatement(insert_user);
@@ -140,21 +123,20 @@ public class CreateUser extends HttpServlet {
           //Check if inserted or not
           int numRowsChanged = pst.executeUpdate();
           if(numRowsChanged!=0){
-            System.out.println("<br>Record inserted");
            }
           else{
-            System.out.println("Failed to insert the data");
+            Logger.getLogger(CreateUser.class.getName()).log(Level.SEVERE, null, "Failed to insert a new user"); 
           }
           pst.close();
         
-      }catch(SQLException e) {
-          System.out.print(e);
+      }catch(SQLException ex) {
+          Logger.getLogger(CreateUser.class.getName()).log(Level.SEVERE, null, ex); 
       }finally {
         // Always close the database connection.
          try {
             if (conn != null) conn.close();
-         } catch (SQLException e){
-                System.out.println(e);
+         } catch (SQLException ex){
+                Logger.getLogger(CreateUser.class.getName()).log(Level.SEVERE, null, ex); 
          }
       }
       // Set session vars

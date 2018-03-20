@@ -32,10 +32,6 @@ public class Login extends HttpServlet {
       // Set response type
       response.setContentType("text/html");
       
-      // Set connection vars
-      String url = "jdbc:postgresql://35.203.11.125/postgres?ssl=true";
-      String user = "postgres";
-      String password = "admin";
       
       // Check user sql
       String check_user = "select username,password,salt from users where username = ?";
@@ -51,20 +47,14 @@ public class Login extends HttpServlet {
       
       // Validate if username already exists
       
-      Connection conn = null;
+      Connection conn = ConnectionManager.getConnection();
       String user_exists = null;
       String salt_from_db = null;
       String password_from_db = null;
       
       
       try {
-          //Get connection
-          try {
-              Class.forName("org.postgresql.Driver");
-          } catch (ClassNotFoundException ex) {
-              Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
-          }
-          conn = DriverManager.getConnection(url, user, password);
+          
           conn.setAutoCommit(true);
           //Prepare the statement
           PreparedStatement pst = conn.prepareStatement(check_user);
@@ -83,14 +73,14 @@ public class Login extends HttpServlet {
           
           pst.close();
           
-      }catch(SQLException e) {
-          System.out.print(e);
+      }catch(SQLException ex) {
+          Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex); 
       }finally {
         // Always close the database connection.
          try {
             if (conn != null) conn.close();
-         } catch (SQLException e){
-                System.out.println(e);
+         } catch (SQLException ex){
+                Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex); 
          }
       }
      
