@@ -24,3 +24,6 @@ label {
 #form-switch:checked~#login-form {
   display:none
 }
+.middle {
+    top:50%;
+}

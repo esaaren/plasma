@@ -16,6 +16,12 @@
 <link rel="stylesheet" type="text/css" href="css/main.css">
 <link rel="stylesheet" type="text/css" href="css/login.css">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $('#mainbody').fadeIn();
+    });
+</script>
 <body>
 <div class="background-img">
   <div class="topleft">
@@ -25,7 +31,7 @@
         </form>
       </div>
   </div>
-  <div class="middle">
+  <div class="middle" id="mainbody">
    <h1>log in</h1>
    <input type='checkbox' id='form-switch'>
     <form id='login-form' action="Login" method='post'>
@@ -43,9 +49,6 @@
         <label for='form-switch'>Already Registered?</label>
     </form>
    <p1 style="height:10px;position:relative;top:20px;font-style:italic;">${login_page_msg}</p1>
-  </div>
-  <div class="bottomleft">
-    <p stlye="color:white">powered by Island Stream Media</p>
   </div>
 </div>
 <script language='javascript' type='text/javascript'>

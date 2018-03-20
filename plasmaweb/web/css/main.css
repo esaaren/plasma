@@ -20,13 +20,14 @@ body, html {
         margin-left: 0px;
 }
 .background-img {
-    background-image: url('images/mountain-bw-bg.jpg');
+    background-image: url('images/mountain-bw-bg.jpg'); 
     min-height: 100%;
     max-height: 100%;
     min-width:100%;
     max-width:100%;
     background-position: center;
     background-size: cover;
+    
 }
 .topleft {
     position: absolute;
@@ -65,10 +66,11 @@ label {
 }
 .middle {
     position: absolute;
-    top: 55%;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
+    display:none;
 }
 input {
   color:white;
