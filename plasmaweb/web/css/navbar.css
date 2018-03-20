@@ -1,16 +1,5 @@
 /* Navbar specific */
 
-.topbar {
-    position: absolute;
-    top:0px;
-    height:40px;
-    width:100%;
-    background:transparent;
-}
-hr {
-    width:99%;
-}
-
 /* Button fonts, left bar should have bigger font */
 button {
     font-size:15px!important;
@@ -24,31 +13,6 @@ form .send {
     color:black!important;
 }
 
-.logout {
-    font-size:15px;
-    height:5px;
-    background:transparent; 
-    border:none;
-    outline:none;
-    color: white;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    float:right;
-}
-
-.logout:hover {
-    border:none;
-    cursor:pointer;
-}
-
-.navbar {
-    position:relative;
-    top:20px;
-    background:transparent;
-    width:100%;
-}
-
 /* The container <div> - needed to position the dropdown content */
 .bar-component {
     display:inline-block; 
@@ -56,11 +20,15 @@ form .send {
 
 /* Align the nav tabs nicely */
 #left-bar {
-    margin-left:20px;
+    margin-left:40px;
 }
 #search-bar {
     margin-left:0px;
     width:100px;
+}
+.searchbar {
+    border-radius: 50px;
+    color:black;
 }
 #search-bar:hover {
     background-color:transparent;
@@ -84,7 +52,7 @@ form .send {
     width:15%;   
 }
 #left-drop-button {
-    border-radius:50%;
+    border-radius:50px;
     text-align: center;
     margin: auto;
 }
@@ -97,11 +65,11 @@ form .send {
 /* Dropdown Button */
 .drop-button {
     background:transparent;
-    color: white;
+    color: black;
     padding: 16px;
     font-size: 20px;
     border: none;
-    border-radius: 50px;
+    border-radius: 1px;
     
 }
 .dropdown-content button:hover{ 
@@ -110,7 +78,7 @@ form .send {
 
 /* Links inside the dropdown */
 .dropdown-content button, .dropdown-content label {
-    color: white;
+    color: black;
     padding: 12px 16px;
     text-decoration: none;
     display: block;

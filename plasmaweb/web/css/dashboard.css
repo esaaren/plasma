@@ -1,0 +1,57 @@
+div {
+    display:block;
+}
+.responsive-box{
+    float:left;
+    position: relative;
+    width: 30%;
+    padding-bottom : 30%; /* = width for a 1:1 aspect ratio */
+    margin:1.66%;
+    overflow:hidden;
+ }
+ .box-content {
+    position:absolute;
+    height:80%; /* = 100% - 2*10% padding */
+    width:90%; /* = 100% - 2*5% padding */
+    padding: 10% 5%;
+   
+ }
+
+ .box-tab{
+    display:table;
+    height:100%;
+    width:100%;
+    background-color:#1E1E1E;
+    transition: all 0.3s ease-in;
+}
+.box-tab:hover {
+    transform: scale(1.1);
+    cursor:pointer;
+}
+.box-cell{
+    display:table-cell;
+    vertical-align:middle;
+    
+}
+.box-content .box-image{
+    width:auto;
+    height:auto;
+    max-height:50%;
+    max-width:100%;
+}
+body {
+    font-size:20px;
+    font-family:"Raleway", sans-serif;
+    color: #fff;
+    text-align:center;
+    background-color:#ddd;
+    display:block;
+}
+#bottom {
+    clear:both;
+    margin:0 1.66%;
+    width:89.68%;
+    padding: 3.5%;
+    background-color:#1E1E1E;
+    color: #fff;
+}
