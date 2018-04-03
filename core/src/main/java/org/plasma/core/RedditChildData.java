@@ -13,9 +13,9 @@ public class RedditChildData {
 	@SerializedName(value = "title")
 	private String title;
 	@SerializedName(value = "created_utc")
-	private String createdUtc;
+	private int createdUtc;
 	@SerializedName(value = "score")
-	private String score;
+	private int score;
 	@SerializedName(value = "id")
 	private String id;
 	@SerializedName(value = "subreddit_id")
@@ -25,104 +25,133 @@ public class RedditChildData {
 	@SerializedName(value = "link_title")
 	private String linkTitle;
 	@SerializedName(value = "controversiality")
-	private String controversiality;
+	private double controversiality;
 	@SerializedName(value = "gilded")
-	private String gilded;
+	private int gilded;
 	@SerializedName(value = "upvote_ratio")
-	private String upvoteRatio;
+	private double upvoteRatio;
 	@SerializedName(value = "subreddit_name_prefixed")
 	private String subredditNamePrefixed;
 	@SerializedName(value = "link_flair_text")
 	private String linkFlairText;
+	@SerializedName(value = "num_comments")
+	private int numComments;
+	@SerializedName(value = "domain")
+	private String domain;
+	@SerializedName(value = "subreddit_subscribers")
+	private int subredditSubscribers;
+	
+	
 	public String getPermalink() {
 		return permalink;
-	}
-	public String getUrl() {
-		return url;
-	}
-	public String getBody() {
-		return body;
-	}
-	public String getTitle() {
-		return title;
-	}
-	public String getCreatedUtc() {
-		return createdUtc;
-	}
-	public String getScore() {
-		return score;
-	}
-	public String getId() {
-		return id;
-	}
-	public String getSubredditId() {
-		return subredditId;
-	}
-	public String getLinkId() {
-		return linkId;
-	}
-	public String getLinkTitle() {
-		return linkTitle;
-	}
-	public String getControversiality() {
-		return controversiality;
-	}
-	public String getGilded() {
-		return gilded;
-	}
-	public String getUpvoteRatio() {
-		return upvoteRatio;
-	}
-	public String getSubredditNamePrefixed() {
-		return subredditNamePrefixed;
-	}
-	public String getLinkFlairText() {
-		return linkFlairText;
 	}
 	public void setPermalink(String permalink) {
 		this.permalink = permalink;
 	}
+	public String getUrl() {
+		return url;
+	}
 	public void setUrl(String url) {
 		this.url = url;
+	}
+	public String getBody() {
+		return body;
 	}
 	public void setBody(String body) {
 		this.body = body;
 	}
+	public String getTitle() {
+		return title;
+	}
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public void setCreatedUtc(String createdUtc) {
+	public int getCreatedUtc() {
+		return createdUtc;
+	}
+	public void setCreatedUtc(int createdUtc) {
 		this.createdUtc = createdUtc;
 	}
-	public void setScore(String score) {
+	public int getScore() {
+		return score;
+	}
+	public void setScore(int score) {
 		this.score = score;
+	}
+	public String getId() {
+		return id;
 	}
 	public void setId(String id) {
 		this.id = id;
 	}
+	public String getSubredditId() {
+		return subredditId;
+	}
 	public void setSubredditId(String subredditId) {
 		this.subredditId = subredditId;
+	}
+	public String getLinkId() {
+		return linkId;
 	}
 	public void setLinkId(String linkId) {
 		this.linkId = linkId;
 	}
+	public String getLinkTitle() {
+		return linkTitle;
+	}
 	public void setLinkTitle(String linkTitle) {
 		this.linkTitle = linkTitle;
 	}
-	public void setControversiality(String controversiality) {
+	public double getControversiality() {
+		return controversiality;
+	}
+	public void setControversiality(double controversiality) {
 		this.controversiality = controversiality;
 	}
-	public void setGilded(String gilded) {
+	public int getGilded() {
+		return gilded;
+	}
+	public void setGilded(int gilded) {
 		this.gilded = gilded;
 	}
-	public void setUpvoteRatio(String upvoteRatio) {
+	public double getUpvoteRatio() {
+		return upvoteRatio;
+	}
+	public void setUpvoteRatio(double upvoteRatio) {
 		this.upvoteRatio = upvoteRatio;
+	}
+	public String getSubredditNamePrefixed() {
+		return subredditNamePrefixed;
 	}
 	public void setSubredditNamePrefixed(String subredditNamePrefixed) {
 		this.subredditNamePrefixed = subredditNamePrefixed;
 	}
+	public String getLinkFlairText() {
+		return linkFlairText;
+	}
 	public void setLinkFlairText(String linkFlairText) {
 		this.linkFlairText = linkFlairText;
 	}
+	public int getNumComments() {
+		return numComments;
+	}
+	public void setNumComments(int numComments) {
+		this.numComments = numComments;
+	}
+	public String getDomain() {
+		return domain;
+	}
+	public void setDomain(String domain) {
+		this.domain = domain;
+	}
+	public int getSubredditSubscribers() {
+		return subredditSubscribers;
+	}
+	public void setSubredditSubscribers(int subredditSubscribers) {
+		this.subredditSubscribers = subredditSubscribers;
+	}
+	
+	
+
 	
 }

@@ -17,3 +17,38 @@ CREATE TABLE sessions (
   enddate       timestamp
 
 );
+
+CREATE TABLE C_PLASMA_REDDIT_POSTS
+(
+    link_pkey      bigserial primary key,
+	linkid		   varchar(20) unique not null,
+    title          text not null,
+	subreddit_name varchar(50) not null,
+	subreddit_id   varchar(20) not null,
+	subreddit_subscribers integer,
+    permalink      text not null,
+	num_comments   integer,
+	created_utc    integer,
+	score 	       integer,
+	link_flair	   varchar(50),
+	controversiality double precision
+	
+	
+);
+CREATE TABLE C_PLASMA_REDDIT_COMMENTS
+(
+	comment_pkey  bigserial primary key,
+	commentid     varchar(20) not null,
+	post_fk varchar(20) references c_plasma_reddit_posts(linkid),
+	body text not null,
+	score integer,
+	num_comments integer,
+	created_utc integer,
+	controversiality double precision,
+	category varchar(50),
+	special_category varchar(50),
+	sentiment integer,
+	location varchar(50),
+	link_in_comment text,
+	trendyscore double precision
+);

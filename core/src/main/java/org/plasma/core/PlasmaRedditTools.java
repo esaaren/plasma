@@ -1,15 +1,6 @@
 package org.plasma.core;
 
-//Imports the Google Cloud client library
-import com.google.cloud.bigquery.BigQuery;
-import com.google.cloud.bigquery.BigQueryOptions;
-import com.google.cloud.bigquery.FieldValueList;
-import com.google.cloud.bigquery.Job;
-import com.google.cloud.bigquery.JobId;
-import com.google.cloud.bigquery.JobInfo;
-import com.google.cloud.bigquery.QueryJobConfiguration;
-import com.google.cloud.bigquery.QueryResponse;
-import com.google.cloud.bigquery.TableResult;
+// Gson and Ok Http packages
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.squareup.okhttp.MediaType;
@@ -18,28 +9,13 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
-import java.io.IOException;
-import java.io.InputStream;
+
 // Java standard 
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.apache.http.client.ClientProtocolException;
-// For web services
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
+import java.io.IOException;
+import java.sql.*;
 
 public class PlasmaRedditTools {
 	
@@ -117,6 +93,35 @@ public class PlasmaRedditTools {
 		}
 		
 	}
+	
+	public static String getKindName(String kindCd) {
+		
+		if (kindCd.equals("t1")) {
+			return "comment";
+		}
+		else if (kindCd.equals("t2")) {
+			return "account";
+		}
+		else if (kindCd.equals("t3")) {
+			return "link";		
+		}
+		else if (kindCd.equals("t4")) {
+			return "message";
+		}
+		else if (kindCd.equals("t5")) {
+			return "subreddit";
+		}
+		else if (kindCd.equals("t6")) {
+			return "award";
+		}
+		else if (kindCd.equals("Listing")) {
+			return "listing";
+		}
+		else {
+			return "null";
+		}
+		
+	}
 
 	public static void main(String[] args) {
 			
@@ -138,8 +143,20 @@ public class PlasmaRedditTools {
 		RedditResponse response = gson.fromJson(getTop, RedditResponse.class);
 		System.out.println("");
 		System.out.println("Json Response");
-		System.out.println(response.getData().getChildren().get(0).getChildData().getUrl());
 		
+		String responseKind= PlasmaRedditTools.getKindName(response.getKind());
+		int childrenLength = response.getData().getDist();
+		String childrenKind = PlasmaRedditTools.getKindName(response.getData().getChildren().get(0).getKind());
+				
+		
+		System.out.println("Response is a: " + responseKind);
+		System.out.println("Childen are: " + childrenKind);
+		System.out.println("Number of children returned is: " + Integer.toString(childrenLength));
+		
+		 // Initialize connection 
+	     Connection conn = PostgresConnectionManager.getConnection();
+	     
+	     
 
 	}
 

@@ -10,7 +10,7 @@ public class RedditResponseData {
 	@SerializedName(value = "after")
 	private String after;
 	@SerializedName(value = "dist")
-	private String dist;
+	private int dist;
 	@SerializedName(value = "modhash")
 	private String modhash;
 	@SerializedName(value = "whitelist_status")
@@ -20,7 +20,7 @@ public class RedditResponseData {
 	public String getAfter() {
 		return after;
 	}
-	public String getDist() {
+	public int getDist() {
 		return dist;
 	}
 	public String getModhash() {
@@ -35,7 +35,7 @@ public class RedditResponseData {
 	public void setAfter(String after) {
 		this.after = after;
 	}
-	public void setDist(String dist) {
+	public void setDist(int dist) {
 		this.dist = dist;
 	}
 	public void setModhash(String modhash) {
