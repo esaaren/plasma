@@ -68,7 +68,7 @@ public class PlasmaBigQueryTools {
 		  // environment variable, you can explicitly load the credentials file to construct the
 		  // credentials.
 		  GoogleCredentials credentials = null;
-		  File credentialsPath = new File("C:\\PersonalWork\\plasma\\core\\src\\main\\resources\\bq_key.json");  // TODO: update to your key path.
+		  File credentialsPath = new File("C:\\PersonalWork\\files\\bq_key.json");  // Key path
 		  try (FileInputStream serviceAccountStream = new FileInputStream(credentialsPath)) {
 		    credentials = ServiceAccountCredentials.fromStream(serviceAccountStream);
 		  } catch (FileNotFoundException ex) {
