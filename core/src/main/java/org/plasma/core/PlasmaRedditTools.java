@@ -3,6 +3,7 @@ package org.plasma.core;
 // Gson and Ok Http packages
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -88,6 +89,24 @@ public class PlasmaRedditTools {
 		Response response;
 		try {
 			response = client.newCall(request).execute();
+			// Get header
+			Headers header = response.headers();
+			
+			// Get limit remaining and if less than 10 remaining then sleep for 10 mins
+			double remaining = Double.parseDouble(header.get("x-ratelimit-remaining"));
+			System.out.println(Double.toString(remaining));
+			
+			if (remaining < 10.0) {
+				try{
+				    Thread.sleep(600000);
+				} 
+				catch(InterruptedException ex) {
+				    Thread.currentThread().interrupt();
+				    Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.SEVERE, "Can't sleep", ex);
+				    ex.printStackTrace();
+				}
+			}
+			// Return the json string 
 			return response.body().string();
 		} catch (IOException ex) {
 			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.SEVERE, null, ex);
@@ -148,7 +167,7 @@ public class PlasmaRedditTools {
 				", Will submit in batches of 100 " + Integer.toString(numSubredditLoops) + " times.");
 
 		
-		for (int i = 0 ; i < numSubredditLoops - 1; i ++) {
+		for (int i = 0 ; i < numSubredditLoops; i ++) {
 			
 			if (i==0) {
 				
@@ -184,14 +203,6 @@ public class PlasmaRedditTools {
 			
 			PlasmaBigQueryTools.insertSubreddits(getTop);
 			
-			try{
-			    Thread.sleep(1000);
-			} 
-			catch(InterruptedException ex) 
-			{
-			    Thread.currentThread().interrupt();
-			}
-			
 		}
 		
 		return 0;
@@ -216,7 +227,7 @@ public class PlasmaRedditTools {
 		Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO,"Token Expires in: " + token.getExpiresIn() );
 		
 		// Load subreddits
-		// PlasmaRedditTools.loadSubreddits(50000, token); Already loaded now 
+		PlasmaRedditTools.loadSubreddits(101, token); //Already loaded now 
 
 		// Get subreddits
 		
