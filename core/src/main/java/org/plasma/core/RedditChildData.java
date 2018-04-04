@@ -4,6 +4,9 @@ import com.google.gson.annotations.SerializedName;
 
 public class RedditChildData {
 
+	/* These will apply to subreddits, posts & comments as the reddit format is standard across all objects
+	 * but some of the objects will have different field names */
+	
 	@SerializedName(value = "permalink")
 	private String permalink;
 	@SerializedName(value = "url")
@@ -32,16 +35,52 @@ public class RedditChildData {
 	private double upvoteRatio;
 	@SerializedName(value = "subreddit_name_prefixed")
 	private String subredditNamePrefixed;
+	@SerializedName(value = "public_description")
+	private String subrPublicDesc;
+	
+	public String getSubrPublicDesc() {
+		return subrPublicDesc;
+	}
+	public void setSubrPublicDesc(String subrPublicDesc) {
+		this.subrPublicDesc = subrPublicDesc;
+	}
+	// Used for flair category on a post
 	@SerializedName(value = "link_flair_text")
 	private String linkFlairText;
+	
+	// Used for num comments on a post 
 	@SerializedName(value = "num_comments")
 	private int numComments;
+	
+	// Used for domain
 	@SerializedName(value = "domain")
 	private String domain;
-	@SerializedName(value = "subreddit_subscribers")
+	
+	// Used for subreddit subscribers
+	@SerializedName(value = "subscribers")
 	private int subredditSubscribers;
 	
+	// Used for subreddit display names 
+	@SerializedName(value = "display_name")
+	private String subrDisplayName;
 	
+	// Used for the audience target for a subreddit
+	@SerializedName(value = "audience_target")
+	private String subrTarget;
+	
+	
+	public String getSubrTarget() {
+		return subrTarget;
+	}
+	public void setSubrTarget(String subrTarget) {
+		this.subrTarget = subrTarget;
+	}
+	public String getSubrDisplayName() {
+		return subrDisplayName;
+	}
+	public void setSubrDisplayName(String subrDisplayName) {
+		this.subrDisplayName = subrDisplayName;
+	}
 	public String getPermalink() {
 		return permalink;
 	}
