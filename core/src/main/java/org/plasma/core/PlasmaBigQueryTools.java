@@ -125,11 +125,12 @@ public class PlasmaBigQueryTools {
 			subredditDesc = response.getData().getChildren().get(j).getChildData().getSubrPublicDesc();
 			subredditTarget = response.getData().getChildren().get(j).getChildData().getSubrTarget();
 			
+			/*  Useful print statement to see the subreddit data 
 			System.out.println(subredditId);
 			System.out.println(subredditName);
 			System.out.println(subredditSubscribers);
 			System.out.println(subredditDesc);
-			System.out.println(subredditTarget);
+			System.out.println(subredditTarget); */
 			
 			
 			// Prepare the row 
@@ -156,6 +157,8 @@ public class PlasmaBigQueryTools {
 				   Logger.getLogger(PlasmaBigQueryTools.class.getName()).log(Level.SEVERE, "BigQuery bulk insert failed", entry);
 			  }
 		}
+		
+		Logger.getLogger(PlasmaBigQueryTools.class.getName()).log(Level.INFO, "BigQuery bulk insert succeeded");
 		
 		return 0;
 	}

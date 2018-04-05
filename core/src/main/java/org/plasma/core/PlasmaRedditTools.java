@@ -92,13 +92,24 @@ public class PlasmaRedditTools {
 			// Get header
 			Headers header = response.headers();
 			
-			// Get limit remaining and if less than 10 remaining then sleep for 10 mins
+			// Get limit remaining and if less than 10 remaining then sleep for remaining window
+			
+			// Reddit requests left 
 			double remaining = Double.parseDouble(header.get("x-ratelimit-remaining"));
-			System.out.println(Double.toString(remaining));
+			
+			// Time left in the window 
+			long remaining_time_seconds = Long.parseLong(header.get("x-ratelimit-reset"));
+			
+			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, 
+					"REDDIT requests left: " + Double.toString(remaining) +
+					", duration remaining: " + Long.toString(remaining_time_seconds));
 			
 			if (remaining < 10.0) {
 				try{
-				    Thread.sleep(600000);
+					Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.WARNING, 
+							"Reddit 10 minute 600 request window exceeded. Sleeping for " +
+								Long.toString(remaining_time_seconds) + " seconds");
+				    Thread.sleep(remaining_time_seconds*1000);
 				} 
 				catch(InterruptedException ex) {
 				    Thread.currentThread().interrupt();
@@ -110,6 +121,7 @@ public class PlasmaRedditTools {
 			return response.body().string();
 		} catch (IOException ex) {
 			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.SEVERE, null, ex);
+			ex.printStackTrace();
 			return "Get request Failed";
 		}
 		
@@ -151,7 +163,15 @@ public class PlasmaRedditTools {
 		
 		int numberSubRedditsToGet = ((numberSubreddits + 99 ) / 100) * 100; // Round number to nearest hundred  
 		int subRedditLimit = 100; // 100 per fetch is the max 
-		int numSubredditLoops = (numberSubRedditsToGet/subRedditLimit) - 1; // Number times to call reddit 
+		int numSubredditLoops = 0;
+		
+		if (numberSubRedditsToGet == 100) {
+			numSubredditLoops = 1;
+		}
+		else {
+			numSubredditLoops = (numberSubRedditsToGet/subRedditLimit) - 1; // Number times to call reddit 
+		}
+		
 		
 		// Initialize vars 
 		String getTop = ""; // Json string holding the reddit response data for 'top subreddits'
