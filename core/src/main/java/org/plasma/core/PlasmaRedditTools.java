@@ -14,6 +14,7 @@ import com.squareup.okhttp.Response;
 // Java standard 
 import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.io.IOException;
@@ -78,7 +79,10 @@ public class PlasmaRedditTools {
 		Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Executing GET: " + request_url);
 		
 		OkHttpClient client = new OkHttpClient();
-
+		
+		client.setConnectTimeout(15, TimeUnit.SECONDS); // connect timeout
+		client.setReadTimeout(15, TimeUnit.SECONDS);    // socket timeout
+		
 		Request request = new Request.Builder()
 		  .url(request_url)
 		  .get()
@@ -162,7 +166,7 @@ public class PlasmaRedditTools {
 		// Determine how many subreddits we want
 		
 		int numberSubRedditsToGet = ((numberSubreddits + 99 ) / 100) * 100; // Round number to nearest hundred  
-		int subRedditLimit = 100; // 100 per fetch is the max 
+		int subRedditLimit = 100; // 100 per fetch is the max from reddit
 		int numSubredditLoops = 0;
 		
 		if (numberSubRedditsToGet == 100) {
