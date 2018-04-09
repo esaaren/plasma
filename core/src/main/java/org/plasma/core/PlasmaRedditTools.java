@@ -160,7 +160,7 @@ public class PlasmaRedditTools {
 		
 	}
 	
-	public static int loadSubreddits(int numberSubreddits, RedditToken token) {
+	public static int loadSubreddits(int numberSubreddits, String databaseId, String tableName, RedditToken token) {
 		
 		
 		// Determine how many subreddits we want
@@ -225,22 +225,90 @@ public class PlasmaRedditTools {
 			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Inserting " + Integer.toString(childrenLength) 
 				+ " subreddit records into BQ");
 			
-			PlasmaBigQueryTools.insertSubreddits(getTop);
+			PlasmaBigQueryTools.insertSubreddits(getTop, databaseId, tableName);
 			
 		}
 		
 		return 0;
 	}
 
-	public static int loadComments(int limit, List<String> subreddits) {
+	
+	public static int loadPostsWithUrl(int limit, String url, String databaseId, String tableName, RedditToken token) {
 		
+		int numberPostsToGet = ((limit + 99 ) / 100) * 100;
 		
+		int subRedditLimit = 100; // 100 per fetch is the max from reddit
+		int numSubredditLoops = 0;
+		
+		if (numberPostsToGet == 100) {
+			numSubredditLoops = 1;
+		}
+		else {
+			numSubredditLoops = (numberPostsToGet/subRedditLimit) - 1; // Number times to call reddit 
+		}
+		
+		// Initialize vars 
+		String getPostJson = ""; // Json string holding the reddit response data for 'top subreddits'
+		String getAfter = ""; // String holding the after keyword for looping over reddit responses
+		Gson gson = null;
+		RedditResponse response = null;
+		String responseKind = null;
+		int childrenLength = 0;
+		String childrenKind = null;
+		
+		// Loop over based on limit given to get all posts and load them 
+		for (int i = 0 ; i < numSubredditLoops; i ++) {
+			
+			if (i==0) {
+				
+				// Get top 100 posts only on first loop
+				getPostJson = PlasmaRedditTools.getRedditData(url + "?limit=" +
+						Integer.toString(subRedditLimit), token);
+			}
+			else { 
+				
+				// Get next 100 subreddits after every loop
+				getPostJson = PlasmaRedditTools.getRedditData(url + "?limit=" + 
+						Integer.toString(subRedditLimit) + "&after=" + getAfter, token);
+			}
+			
+			// Build new gson object each cycle
+			gson = new GsonBuilder().setPrettyPrinting().create();
+			
+			// Get the response into the RedditResponse class
+			response = gson.fromJson(getPostJson, RedditResponse.class);
+			
+			// Get and output basic response data 
+			responseKind= PlasmaRedditTools.getKindName(response.getKind());
+			childrenLength = response.getData().getDist();
+			childrenKind = PlasmaRedditTools.getKindName(response.getData().getChildren().get(0).getKind());
+			getAfter = response.getData().getAfter(); // Used to query the next group 
+			
+			
+			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Response is a: " + responseKind );
+			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Childen are: " + childrenKind );
+			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Number of children returned is: " + Integer.toString(childrenLength) );
+			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Inserting " + Integer.toString(childrenLength) 
+				+ " post records into BQ");
+			
+			PlasmaBigQueryTools.insertPosts(getPostJson, databaseId, tableName);
+			
+		}
 		
 		return 0;
 	}
 	
 	public static void main(String[] args) {
 			
+		// Database names 
+		
+		String databaseId = "trendy";
+		
+		// Table names 
+		String subrTableName = "subreddits";
+		String postTableName = "posts";
+		String commentTableName = "comments";
+		
 		// Get reddit token object using plasma tools 
 		
 		Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO,"Authenticating with Reddit");
@@ -251,11 +319,14 @@ public class PlasmaRedditTools {
 		Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO,"Token Expires in: " + token.getExpiresIn() );
 		
 		// Load subreddits
-		PlasmaRedditTools.loadSubreddits(101, token); //Already loaded now 
+		//PlasmaRedditTools.loadSubreddits(101,databaseId, subrTableName, token); // Need to specify the table names 
 
 		// Get subreddits
 		
-		List<String> subreddits = PlasmaBigQueryTools.getSubredditNames("plasma.subrt_results");
+		//List<String> subreddits = PlasmaBigQueryTools.getSubredditNames(databaseId + "." + subrTableName);
+		
+		PlasmaRedditTools.loadPostsWithUrl(101, "r/all", databaseId, postTableName, token);
+		
 		
 	}
 		 

@@ -38,12 +38,6 @@ public class RedditChildData {
 	@SerializedName(value = "public_description")
 	private String subrPublicDesc;
 	
-	public String getSubrPublicDesc() {
-		return subrPublicDesc;
-	}
-	public void setSubrPublicDesc(String subrPublicDesc) {
-		this.subrPublicDesc = subrPublicDesc;
-	}
 	// Used for flair category on a post
 	@SerializedName(value = "link_flair_text")
 	private String linkFlairText;
@@ -68,6 +62,13 @@ public class RedditChildData {
 	@SerializedName(value = "audience_target")
 	private String subrTarget;
 	
+	
+	public String getSubrPublicDesc() {
+		return subrPublicDesc;
+	}
+	public void setSubrPublicDesc(String subrPublicDesc) {
+		this.subrPublicDesc = subrPublicDesc;
+	}
 	
 	public String getSubrTarget() {
 		return subrTarget;
