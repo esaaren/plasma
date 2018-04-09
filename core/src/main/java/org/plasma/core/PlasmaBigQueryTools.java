@@ -177,9 +177,9 @@ public class PlasmaBigQueryTools {
 
 	// Requires a json string of post data
 	
-	public static int insertPosts (String subrJson, String databaseId, String tableName) {
+	public static int insertPosts (String json, String databaseId, String tableName) {
 		
-		// Inserts subreddits in pools of 100 
+		// Inserts posts in pools of 100 
 		
 		// Initialize
 		Gson gson = null;
@@ -200,7 +200,7 @@ public class PlasmaBigQueryTools {
 		gson = new GsonBuilder().setPrettyPrinting().create();
 		
 		// Get the response into the RedditResponse class
-		response = gson.fromJson(subrJson, RedditResponse.class);
+		response = gson.fromJson(json, RedditResponse.class);
 		
 		childrenLength = response.getData().getDist();
 		
@@ -219,7 +219,7 @@ public class PlasmaBigQueryTools {
 		
 		for (int j = 0; j < childrenLength; j++) {
 				
-			linkId = response.getData().getChildren().get(j).getChildData().getId();
+			linkId = "t3_" + response.getData().getChildren().get(j).getChildData().getId();
 			title = response.getData().getChildren().get(j).getChildData().getTitle();
 			subredditFk = response.getData().getChildren().get(j).getChildData().getSubredditId();
 			permaLink = response.getData().getChildren().get(j).getChildData().getPermalink();
@@ -263,6 +263,96 @@ public class PlasmaBigQueryTools {
 		Logger.getLogger(PlasmaBigQueryTools.class.getName()).log(Level.INFO, "BigQuery bulk insert succeeded");
 		
 		return 0;
+	}
+	
+	// Requires a json string of comment data 
+	
+	public static int insertComments (String json, String databaseId, String tableName) {
+		
+		// Inserts subreddits in pools of 100 
+		
+		// Initialize
+		Gson gson = null;
+		RedditResponse response = null;
+		int childrenLength = 0;
+		String commentId = null;
+		String postFk = null;
+		String subredditFk = null;
+		String permaLink = null;
+		String body = null;
+		String subredditPrefix = null;
+		String linkTitle = null;
+		int createdUTC = 0;
+		int score = 0;
+		
+		
+		// Build new gson object each cycle
+		gson = new GsonBuilder().setPrettyPrinting().create();
+		
+		// Get the response into the RedditResponse class
+		response = gson.fromJson(json, RedditResponse.class);
+		
+		childrenLength = response.getData().getDist();
+		
+		// Acquire a big query connection, setup the insert 
+		
+		BigQuery bqconn = PlasmaBigQueryTools.Connect();
+		TableId tableId = TableId.of(databaseId, tableName);
+		
+		// Values of the row to insert
+		Map<String, Object> rowContent = new HashMap<>();
+		
+		// Setup the request
+		InsertAllRequest.Builder bq_request = InsertAllRequest.newBuilder(tableId);
+		
+		// Loop over each of the returned children (Subreddits in this case) 
+		
+		for (int j = 0; j < childrenLength; j++) {
+				
+			commentId = "t1_" + response.getData().getChildren().get(j).getChildData().getId();
+			postFk = response.getData().getChildren().get(j).getChildData().getLinkId();
+			subredditFk = response.getData().getChildren().get(j).getChildData().getSubredditId();
+			permaLink = response.getData().getChildren().get(j).getChildData().getPermalink();
+			body = response.getData().getChildren().get(j).getChildData().getBody();
+			subredditPrefix = response.getData().getChildren().get(j).getChildData().getSubredditNamePrefixed();
+			linkTitle = response.getData().getChildren().get(j).getChildData().getLinkTitle();
+			createdUTC = response.getData().getChildren().get(j).getChildData().getCreatedUtc();
+			score = response.getData().getChildren().get(j).getChildData().getScore();
+			
+			// Prepare the row data
+			
+			rowContent.put("comment_id", commentId);
+			rowContent.put("post_fk", postFk);
+			rowContent.put("subreddit_fk", subredditFk);
+			rowContent.put("body", body);
+			rowContent.put("score", score);
+			rowContent.put("created_utc", createdUTC);
+			rowContent.put("subreddit_prefix", subredditPrefix);
+			rowContent.put("link_title", linkTitle);
+			rowContent.put("permalink", permaLink);
+			
+			
+			// Add row to the request 
+			
+			bq_request = bq_request.addRow(rowContent);
+		}
+		
+		// Submit the rows as bulk to BQ 
+		
+		InsertAllResponse bq_response = bqconn.insertAll(bq_request.build());
+		
+		if (bq_response.hasErrors()) {
+			
+			  // If any of the insertions failed, this lets you inspect the errors
+			  for (Entry<Long, List<BigQueryError>> entry : bq_response.getInsertErrors().entrySet()) {
+				   Logger.getLogger(PlasmaBigQueryTools.class.getName()).log(Level.SEVERE, "BigQuery bulk insert failed", entry);
+			  }
+		}
+		
+		Logger.getLogger(PlasmaBigQueryTools.class.getName()).log(Level.INFO, "BigQuery bulk insert succeeded");
+		
+		return 0;
+			
 	}
 	
 	// Returns a list of subreddits 

@@ -298,6 +298,63 @@ public class PlasmaRedditTools {
 		return 0;
 	}
 	
+	
+	// Specify number of calls to make 
+	public static int loadCommentsWithUrl (int numCalls, String url, String databaseId, String tableName, RedditToken token) {
+		
+		int subRedditLimit = 100;
+		
+		// Initialize vars 
+		String getCommentJson = ""; // Json string holding the reddit response data for comments
+		String getAfter = ""; // String holding the after keyword for looping over reddit responses
+		Gson gson = null;
+		RedditResponse response = null;
+		String responseKind = null;
+		int childrenLength = 0;
+		String childrenKind = null;
+		
+		// Loop over based on limit given to get all posts and load them. 
+		for (int i = 0 ; i < numCalls; i ++) {
+			
+			if (i==0) {
+				
+				// Get top 100 posts only on first loop
+				getCommentJson = PlasmaRedditTools.getRedditData(url + "?limit=" +
+						Integer.toString(subRedditLimit), token);
+			}
+			else { 
+				
+				// Get next 100 subreddits after every loop
+				getCommentJson = PlasmaRedditTools.getRedditData(url + "?limit=" + 
+						Integer.toString(subRedditLimit), token);
+			}
+			
+			// Build new gson object each cycle
+			gson = new GsonBuilder().setPrettyPrinting().create();
+			
+			// Get the response into the RedditResponse class
+			response = gson.fromJson(getCommentJson, RedditResponse.class);
+			
+			// Get and output basic response data 
+			responseKind= response.getKind();
+			childrenLength = response.getData().getDist();
+			childrenKind = response.getData().getChildren().get(0).getKind();
+			getAfter = response.getData().getAfter(); // Used to query the next group 
+			
+			
+			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Response is a: " + responseKind );
+			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Childen are: " + childrenKind );
+			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Number of children returned is: " + Integer.toString(childrenLength) );
+			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Inserting " + Integer.toString(childrenLength) 
+				+ " post records into BQ");
+			
+			PlasmaBigQueryTools.insertComments(getCommentJson, databaseId, tableName);
+			
+		}
+		
+		return 0;
+	}
+	
 	public static void main(String[] args) {
 			
 		// Database names 
@@ -325,7 +382,9 @@ public class PlasmaRedditTools {
 		
 		//List<String> subreddits = PlasmaBigQueryTools.getSubredditNames(databaseId + "." + subrTableName);
 		
-		PlasmaRedditTools.loadPostsWithUrl(101, "r/all", databaseId, postTableName, token);
+		//PlasmaRedditTools.loadPostsWithUrl(101, "r/all", databaseId, postTableName, token);
+		
+		PlasmaRedditTools.loadCommentsWithUrl(101, "r/all/comments", databaseId, commentTableName, token);
 		
 		
 	}
