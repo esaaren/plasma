@@ -94,6 +94,7 @@ public class PlasmaRedditTools {
 		Response response;
 		try {
 			response = client.newCall(request).execute();
+			
 			// Get header
 			Headers header = response.headers();
 			
@@ -101,7 +102,7 @@ public class PlasmaRedditTools {
 			
 			response_body = response.body().string();
 			
-			
+			// Check if token expired
 			if (header.get("www-authenticate") != null) {
 				
 				if (header.get("www-authenticate").contains("invalid_token")) {
