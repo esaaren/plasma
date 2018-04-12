@@ -75,6 +75,7 @@ public class PlasmaRedditTools {
 		
 		String base_url = "https://oauth.reddit.com/";
 		String request_url = base_url + url_suffix;
+		String response_body;
 		
 		Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Executing GET: " + request_url);
 		
@@ -96,10 +97,19 @@ public class PlasmaRedditTools {
 			// Get header
 			Headers header = response.headers();
 			
+			// Check if auth has expired by inspecting body contents for unauthorized
+			
+			response_body = response.body().string();
+			
+			if (response_body.equals("{\"message\": \"Unauthorized\", \"error\": 401}")) {
+				return "expired_token";
+			}
+			
 			// Get limit remaining and if less than 10 remaining then sleep for remaining window
 			
 			// Reddit requests left 
 			double remaining = Double.parseDouble(header.get("x-ratelimit-remaining"));
+			
 			
 			// Time left in the window 
 			long remaining_time_seconds = Long.parseLong(header.get("x-ratelimit-reset"));
@@ -121,12 +131,23 @@ public class PlasmaRedditTools {
 				    ex.printStackTrace();
 				}
 			}
+			
+			// Sleep for 1.5s because if no delay we will pull duplicate data 
+			
+			try {
+				Thread.sleep(1500);
+			} catch (InterruptedException ex) {
+				Thread.currentThread().interrupt();
+			    Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.SEVERE, "Can't sleep", ex);
+			    ex.printStackTrace();
+			}
+						
 			// Return the json string 
-			return response.body().string();
-		} catch (IOException ex) {
+			return response_body;
+		} catch (Exception ex) {
 			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.SEVERE, null, ex);
 			ex.printStackTrace();
-			return "Get request Failed";
+			return "request_failed";
 		}
 		
 	}
@@ -316,18 +337,30 @@ public class PlasmaRedditTools {
 		// Loop over based on limit given to get all posts and load them. 
 		for (int i = 0 ; i < numCalls; i ++) {
 			
+			System.out.println(i);
 			if (i==0) {
 				
 				// Get top 100 posts only on first loop
 				getCommentJson = PlasmaRedditTools.getRedditData(url + "?limit=" +
 						Integer.toString(subRedditLimit), token);
+				
+				// Check if return string is token expiry
+				if (getCommentJson.equals("token_expired")) {
+					return 2;
+				}
 			}
 			else { 
 				
 				// Get next 100 subreddits after every loop
 				getCommentJson = PlasmaRedditTools.getRedditData(url + "?limit=" + 
 						Integer.toString(subRedditLimit), token);
+				
+				// Check if return string is token expiry
+				if (getCommentJson.equals("token_expired")) {
+					return 2;
+				}
 			}
+			
 			
 			// Build new gson object each cycle
 			gson = new GsonBuilder().setPrettyPrinting().create();
@@ -335,18 +368,19 @@ public class PlasmaRedditTools {
 			// Get the response into the RedditResponse class
 			response = gson.fromJson(getCommentJson, RedditResponse.class);
 			
+			
 			// Get and output basic response data 
 			responseKind= response.getKind();
 			childrenLength = response.getData().getDist();
 			childrenKind = response.getData().getChildren().get(0).getKind();
 			getAfter = response.getData().getAfter(); // Used to query the next group 
 			
-			
+			/*
 			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Response is a: " + responseKind );
 			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Childen are: " + childrenKind );
 			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Number of children returned is: " + Integer.toString(childrenLength) );
 			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Inserting " + Integer.toString(childrenLength) 
-				+ " post records into BQ");
+				+ " post records into BQ"); */
 			
 			PlasmaBigQueryTools.insertComments(getCommentJson, databaseId, tableName);
 			
@@ -356,7 +390,7 @@ public class PlasmaRedditTools {
 	}
 	
 	public static void main(String[] args) {
-			
+		
 		// Database names 
 		
 		String databaseId = "trendy";
@@ -365,6 +399,11 @@ public class PlasmaRedditTools {
 		String subrTableName = "subreddits";
 		String postTableName = "posts";
 		String commentTableName = "comments";
+		
+		// Job execution
+		
+		// Each hour the token will expire, so the number of times to execute is synonymous with hours
+		int timesToExecute = 3;
 		
 		// Get reddit token object using plasma tools 
 		
@@ -383,8 +422,31 @@ public class PlasmaRedditTools {
 		//List<String> subreddits = PlasmaBigQueryTools.getSubredditNames(databaseId + "." + subrTableName);
 		
 		//PlasmaRedditTools.loadPostsWithUrl(101, "r/all", databaseId, postTableName, token);
+		//PlasmaRedditTools.loadCommentsWithUrl(5000, "r/all/comments", databaseId, commentTableName, token);
 		
-		PlasmaRedditTools.loadCommentsWithUrl(101, "r/all/comments", databaseId, commentTableName, token);
+		
+		
+		int loadResponse = 0;
+		
+		for (int i = 0; i < timesToExecute; i++) {
+			try {
+				System.out.println("LOADING:");
+				loadResponse = PlasmaRedditTools.loadCommentsWithUrl(5000, "r/all/comments", databaseId, commentTableName, token);
+			} catch (Exception ex) {
+				
+				if (loadResponse == 2) {
+					Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO,"Token Has Expired, Authenticating again");
+					token = PlasmaRedditTools.getAuthToken("gluFwvMrQLqLuA", 
+							"nowLOmNuC8tS76mrc-LQUlarngw", "plasmatrendybot", "plasmafury10");
+					Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO,"Token Expires in: " + token.getExpiresIn() );
+				}
+				else {
+					Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Something failed within the load job" );
+					System.exit(1);
+				}
+			}
+		}
+		
 		
 		
 	}
