@@ -101,8 +101,13 @@ public class PlasmaRedditTools {
 			
 			response_body = response.body().string();
 			
-			if (response_body.equals("{\"message\": \"Unauthorized\", \"error\": 401}")) {
-				return "expired_token";
+			
+			if (header.get("www-authenticate") != null) {
+				
+				if (header.get("www-authenticate").contains("invalid_token")) {
+					return "token_expired";
+				}
+				
 			}
 			
 			// Get limit remaining and if less than 10 remaining then sleep for remaining window
@@ -432,18 +437,17 @@ public class PlasmaRedditTools {
 			try {
 				System.out.println("LOADING:");
 				loadResponse = PlasmaRedditTools.loadCommentsWithUrl(5000, "r/all/comments", databaseId, commentTableName, token);
-			} catch (Exception ex) {
-				
 				if (loadResponse == 2) {
 					Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO,"Token Has Expired, Authenticating again");
 					token = PlasmaRedditTools.getAuthToken("gluFwvMrQLqLuA", 
 							"nowLOmNuC8tS76mrc-LQUlarngw", "plasmatrendybot", "plasmafury10");
 					Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO,"Token Expires in: " + token.getExpiresIn() );
 				}
-				else {
-					Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Something failed within the load job" );
-					System.exit(1);
-				}
+			} catch (Exception ex) {
+				
+				Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Something failed within the load job" );
+				ex.printStackTrace();
+				System.exit(1);
 			}
 		}
 		
