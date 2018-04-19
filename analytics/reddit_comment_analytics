@@ -1,0 +1,150 @@
+# coding: utf-8
+
+# In[31]:
+
+
+import google.datalab.bigquery as bq
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import shutil
+from sklearn.feature_extraction.text import TfidfVectorizer, ENGLISH_STOP_WORDS
+from sklearn.pipeline import make_pipeline
+from sklearn.decomposition import PCA
+from sklearn.cluster import KMeans, MiniBatchKMeans
+from sklearn.manifold import TSNE
+from sklearn.decomposition import TruncatedSVD 
+from sklearn.preprocessing import normalize 
+from sklearn import decomposition
+import collections
+import re
+import string
+import nltk
+from nltk.corpus import stopwords
+from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
+
+
+# In[6]:
+
+
+get_ipython().magic(u'bq tables describe --name trendy.comments')
+
+
+# In[6]:
+
+
+get_ipython().magic(u'bq query')
+SELECT body FROM `idyllic-kit-191017.trendy.comments` GROUP BY body LIMIT 10;
+
+
+# In[7]:
+
+
+data = bq.Query('SELECT body, link_title FROM `idyllic-kit-191017.trendy.comments` group by body, link_title;')
+comment_data = data.execute(output_options=bq.QueryOutput.dataframe()).result()
+comment_data.head(10)
+
+
+# In[8]:
+
+
+comment_matrix = comment_data.as_matrix()
+
+
+# In[9]:
+
+
+dim1,dim2 = comment_matrix.shape
+print(dim1)
+print(dim2)
+
+
+# In[10]:
+
+
+for x in range(1):
+  print(comment_matrix[x,0])
+  print(comment_matrix[x,1])
+
+
+# Create a list of phrases to look for and use nltk library of stopwords for filtering the data
+
+# In[20]:
+
+
+word_list=[]
+
+# Key phrases we want to search comments by
+phrases=["i'd buy", 'would buy']
+
+# NLTK stopwords library
+nltk.download('stopwords')
+stop_words=set(stopwords.words('english'))
+
+
+# Loop over the list of comments, grab the comment data (sentence) and see if it has any key phrases, if it does filter out the stop words and then add it to the word list array. 
+
+# Download the nltk library vader lexicon
+
+# In[81]:
+
+
+# NLTK vader sentiment analyzer tool
+nltk.download('vader_lexicon')
+analyze=SIA()
+
+
+# In[77]:
+
+
+sentence_array=[]
+sentiment_array=[]
+
+
+for x in range(2):
+  sentence=comment_matrix[x,0]
+  
+  # Sentiment analysis with vader on the comment 
+  sentence_sentiment=analyze.polarity_scores(sentence)
+  
+  # Add sentence and the sentiment to an array
+  sentence_array.append(sentence)
+  sentiment_array.append(sentence_sentiment['compound'])
+  
+  # Lowercase the sentence so easier to tokenize
+  sentence=sentence.lower()
+  
+  title=comment_matrix[x,1].lower()
+  
+  # Add all the words into an array if the comment has key phrases in it
+  if any(y in sentence for y in phrases):
+    words=filter(lambda w: not w in stop_words,sentence.split())
+    for y in range(len(words)):
+      word_list.append(words[y])
+
+# Add the two arrays to the dataframe
+comment_df=pd.DataFrame({'Sentence': sentence_array, 'Sentiment': sentiment_array})
+
+
+# Below how to get some data out of it
+
+# In[79]:
+
+
+# How to use head on a dataframe
+comment_df.head(10)
+
+# View a dataframe with row index
+comment_df.loc[1]
+
+# View a dataframe with column index
+
+comment_df.loc[df['Sentence'] == 'bob']
+
+
+# In[80]:
+
+
+# Get all the most common words
+count_subreddit_words = collections.Counter(word_list)
+#print(count_subreddit_words.most_common())
