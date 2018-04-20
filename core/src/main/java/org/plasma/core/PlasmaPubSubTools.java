@@ -23,21 +23,6 @@ import com.google.pubsub.v1.PubsubMessage;
 
 public class PlasmaPubSubTools {
 	
-	public static GoogleCredentials getCredentials() {
-		
-		GoogleCredentials credentials = null;
-	    File credentialsPath = new File("C:\\PersonalWork\\files\\pubsub_key.json");  // Key path
-	    try (FileInputStream serviceAccountStream = new FileInputStream(credentialsPath)) {
-	        credentials = ServiceAccountCredentials.fromStream(serviceAccountStream);
-	    } catch (FileNotFoundException ex) {
-		  Logger.getLogger(PlasmaPubSubTools.class.getName()).log(Level.SEVERE, "File not found", ex);
-		 
-	    } catch (IOException ex) {
-		  Logger.getLogger(PlasmaPubSubTools.class.getName()).log(Level.SEVERE, "IOException", ex);
-	    }
-	    
-	    return credentials;
-	}
 	
 	public static int publish(String topic, String messageContents) {
 		
@@ -46,7 +31,7 @@ public class PlasmaPubSubTools {
 	
 	  // Setup google credentials 
 	
-	  GoogleCredentials credentials = PlasmaPubSubTools.getCredentials();
+	  GoogleCredentials credentials = PlasmaGoogleCloudTools.getCredentials("pubsub");
 		  
 	  // Set project name & topic name 
 	  ProjectTopicName topicName = ProjectTopicName.of("idyllic-kit-191017", topicNameString);
@@ -73,7 +58,7 @@ public class PlasmaPubSubTools {
 	    for (String message : messages) {
 	      ByteString data = ByteString.copyFromUtf8(message);
 	      PubsubMessage pubsubMessage = PubsubMessage.newBuilder().setData(data).build();
-
+	      
 	      // Once published, returns a server-assigned message id (unique within the topic)
 	      ApiFuture<String> messageIdFuture = publisher.publish(pubsubMessage);
 	      messageIdFutures.add(messageIdFuture);

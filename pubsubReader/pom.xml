@@ -69,6 +69,12 @@
         </plugin>
       </plugins>
     </pluginManagement>
+    
+    <resources>
+        <resource>
+            <directory>src/main/resources</directory>
+        </resource>
+   </resources>
   </build>
 
   <dependencies>
@@ -89,11 +95,7 @@
       <artifactId>slf4j-jdk14</artifactId>
       <version>${slf4j.version}</version>
     </dependency>
-    <dependency>
-       <groupId>com.google.cloud</groupId>
-       <artifactId>google-cloud-bigquery</artifactId>
-       <version>1.24.0</version>
-    </dependency>
+ 
 	<!-- https://mvnrepository.com/artifact/com.squareup.okhttp/okhttp -->
 	<dependency>
     	<groupId>com.squareup.okhttp</groupId>
@@ -112,5 +114,12 @@
     	<artifactId>postgresql</artifactId>
     	<version>9.1-901-1.jdbc4</version>
 	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.google.api-client/google-api-client -->
+	<dependency>
+    	<groupId>com.google.api-client</groupId>
+    	<artifactId>google-api-client</artifactId>
+    	<version>1.22.0</version>
+	</dependency>
+	
   </dependencies>
 </project>

@@ -65,7 +65,7 @@ import com.google.gson.GsonBuilder;
 public class PlasmaBigQueryTools {
 	
 	// Returns a BQ connection object 
-	public static BigQuery Connect (GoogleCredentials credentials) {
+	public static BigQuery ConnectLocal (GoogleCredentials credentials) {
 		
 		  // Load credentials from JSON key file. If you can't set the GOOGLE_APPLICATION_CREDENTIALS
 		  // environment variable, you can explicitly load the credentials file to construct the
@@ -76,6 +76,16 @@ public class PlasmaBigQueryTools {
 		      BigQueryOptions.newBuilder().setProjectId("idyllic-kit-191017").setCredentials(credentials).build().getService();
 
 		return bigquery;
+	}
+	
+	
+	// Use when connecting from GCP 
+	
+	public static BigQuery ConnectGCP() {
+		BigQuery bigquery =
+			      BigQueryOptions.getDefaultInstance().getService();
+
+			return bigquery;
 	}
 	
 	// Requires a json string of comment data 
@@ -110,7 +120,14 @@ public class PlasmaBigQueryTools {
 		
 		// Acquire a big query connection, setup the insert 
 		
-		BigQuery bqconn = PlasmaBigQueryTools.Connect(credentials);
+		BigQuery bqconn;
+		if (credentials == null) {
+			bqconn = PlasmaBigQueryTools.ConnectGCP();
+		}
+		else {
+			bqconn = PlasmaBigQueryTools.ConnectLocal(credentials);
+		}
+		bqconn = PlasmaBigQueryTools.ConnectLocal(credentials);
 		TableId tableId = TableId.of(databaseId, tableName);
 		
 		// Values of the row to insert
@@ -185,7 +202,7 @@ public class PlasmaBigQueryTools {
 	    
 		// Sample how to use 
 		
-		BigQuery bqconn = PlasmaBigQueryTools.Connect(credentials);
+		BigQuery bqconn = PlasmaBigQueryTools.ConnectLocal(credentials);
 		// Use the client.
 		System.out.println("Datasets:");
 		for (com.google.cloud.bigquery.Dataset dataset : bqconn.listDatasets().iterateAll()) {

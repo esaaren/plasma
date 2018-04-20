@@ -337,7 +337,7 @@ public class PlasmaRedditTools {
 	public static int loadCommentsWithUrl (int numCalls, String url, String databaseId, 
 			String tableName, RedditToken token, GoogleCredentials credentials) {
 		
-		int subRedditLimit = 100;
+		int subRedditLimit = 1;
 		
 		// Initialize vars 
 		String getCommentJson = ""; // Json string holding the reddit response data for comments
@@ -396,9 +396,9 @@ public class PlasmaRedditTools {
 			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Inserting " + Integer.toString(childrenLength) 
 				+ " post records into BQ"); */
 			
-			PlasmaBigQueryTools.insertComments(getCommentJson, databaseId, tableName,
-					credentials);
-			//PlasmaPubSubTools.publish("reddit_topic", getCommentJson);
+			//PlasmaBigQueryTools.insertComments(getCommentJson, databaseId, tableName,
+					//credentials);
+			PlasmaPubSubTools.publish("reddit_topic", getCommentJson);
 			
 		}
 		
@@ -432,16 +432,8 @@ public class PlasmaRedditTools {
 		
 		// Google creds so authentication can happen with BQ or pubsub
 		
-		GoogleCredentials bq_credentials = null;
-	    File credentialsPath = new File("C:\\PersonalWork\\files\\bq_key.json");  // Key path
-	    try (FileInputStream serviceAccountStream = new FileInputStream(credentialsPath)) {
-	        bq_credentials = ServiceAccountCredentials.fromStream(serviceAccountStream);
-	    } catch (FileNotFoundException ex) {
-		  Logger.getLogger(PlasmaPubSubTools.class.getName()).log(Level.SEVERE, "File not found", ex);
-		 
-	    } catch (IOException ex) {
-		  Logger.getLogger(PlasmaPubSubTools.class.getName()).log(Level.SEVERE, "IOException", ex);
-	    }
+		GoogleCredentials bq_credentials = PlasmaGoogleCloudTools.getCredentials("bq");
+
 		
 		int loadResponse = 0;
 		
