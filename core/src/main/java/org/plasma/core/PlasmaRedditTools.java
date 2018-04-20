@@ -1,5 +1,7 @@
 package org.plasma.core;
 
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.ServiceAccountCredentials;
 // Gson and Ok Http packages
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -17,6 +19,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.*;
 
@@ -252,7 +257,8 @@ public class PlasmaRedditTools {
 			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Inserting " + Integer.toString(childrenLength) 
 				+ " subreddit records into BQ");
 			
-			PlasmaBigQueryTools.insertSubreddits(getTop, databaseId, tableName);
+			//PlasmaBigQueryTools.insertSubreddits(getTop, databaseId, tableName,
+					//"C:\\PersonalWork\\files\\bq_key.json");
 			
 		}
 		
@@ -318,7 +324,8 @@ public class PlasmaRedditTools {
 			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Inserting " + Integer.toString(childrenLength) 
 				+ " post records into BQ");
 			
-			PlasmaBigQueryTools.insertPosts(getPostJson, databaseId, tableName);
+			//PlasmaBigQueryTools.insertPosts(getPostJson, databaseId, tableName,
+					//"C:\\PersonalWork\\files\\bq_key.json");
 			
 		}
 		
@@ -327,7 +334,8 @@ public class PlasmaRedditTools {
 	
 	
 	// Specify number of calls to make 
-	public static int loadCommentsWithUrl (int numCalls, String url, String databaseId, String tableName, RedditToken token) {
+	public static int loadCommentsWithUrl (int numCalls, String url, String databaseId, 
+			String tableName, RedditToken token, GoogleCredentials credentials) {
 		
 		int subRedditLimit = 100;
 		
@@ -388,7 +396,9 @@ public class PlasmaRedditTools {
 			Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO, "Inserting " + Integer.toString(childrenLength) 
 				+ " post records into BQ"); */
 			
-			PlasmaBigQueryTools.insertComments(getCommentJson, databaseId, tableName);
+			PlasmaBigQueryTools.insertComments(getCommentJson, databaseId, tableName,
+					credentials);
+			//PlasmaPubSubTools.publish("reddit_topic", getCommentJson);
 			
 		}
 		
@@ -420,24 +430,26 @@ public class PlasmaRedditTools {
 		
 		Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO,"Token Expires in: " + token.getExpiresIn() );
 		
-		// Load subreddits
-		//PlasmaRedditTools.loadSubreddits(101,databaseId, subrTableName, token); // Need to specify the table names 
-
-		// Get subreddits
+		// Google creds so authentication can happen with BQ or pubsub
 		
-		//List<String> subreddits = PlasmaBigQueryTools.getSubredditNames(databaseId + "." + subrTableName);
-		
-		//PlasmaRedditTools.loadPostsWithUrl(101, "r/all", databaseId, postTableName, token);
-		//PlasmaRedditTools.loadCommentsWithUrl(5000, "r/all/comments", databaseId, commentTableName, token);
-		
-		
+		GoogleCredentials bq_credentials = null;
+	    File credentialsPath = new File("C:\\PersonalWork\\files\\bq_key.json");  // Key path
+	    try (FileInputStream serviceAccountStream = new FileInputStream(credentialsPath)) {
+	        bq_credentials = ServiceAccountCredentials.fromStream(serviceAccountStream);
+	    } catch (FileNotFoundException ex) {
+		  Logger.getLogger(PlasmaPubSubTools.class.getName()).log(Level.SEVERE, "File not found", ex);
+		 
+	    } catch (IOException ex) {
+		  Logger.getLogger(PlasmaPubSubTools.class.getName()).log(Level.SEVERE, "IOException", ex);
+	    }
 		
 		int loadResponse = 0;
 		
 		for (int i = 0; i < timesToExecute; i++) {
 			try {
 				System.out.println("LOADING:");
-				loadResponse = PlasmaRedditTools.loadCommentsWithUrl(5000, "r/all/comments", databaseId, commentTableName, token);
+				loadResponse = PlasmaRedditTools.loadCommentsWithUrl(5000,
+						"r/all/comments", databaseId, commentTableName,	token, bq_credentials);
 				if (loadResponse == 2) {
 					Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO,"Token Has Expired, Authenticating again");
 					token = PlasmaRedditTools.getAuthToken("gluFwvMrQLqLuA", 

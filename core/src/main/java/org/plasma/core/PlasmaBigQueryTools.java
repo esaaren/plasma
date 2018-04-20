@@ -65,21 +65,12 @@ import com.google.gson.GsonBuilder;
 public class PlasmaBigQueryTools {
 	
 	// Returns a BQ connection object 
-	public static BigQuery Connect () {
+	public static BigQuery Connect (GoogleCredentials credentials) {
 		
 		  // Load credentials from JSON key file. If you can't set the GOOGLE_APPLICATION_CREDENTIALS
 		  // environment variable, you can explicitly load the credentials file to construct the
 		  // credentials.
-		  GoogleCredentials credentials = null;
-		  File credentialsPath = new File("C:\\PersonalWork\\files\\bq_key.json");  // Key path
-		  try (FileInputStream serviceAccountStream = new FileInputStream(credentialsPath)) {
-		      credentials = ServiceAccountCredentials.fromStream(serviceAccountStream);
-		  } catch (FileNotFoundException ex) {
-			  Logger.getLogger(PlasmaBigQueryTools.class.getName()).log(Level.SEVERE, "File not found", ex);
-		  } catch (IOException ex) {
-			  Logger.getLogger(PlasmaBigQueryTools.class.getName()).log(Level.SEVERE, "IOException", ex);
-		  }
-
+		
 		  // Instantiate a client.
 		  BigQuery bigquery =
 		      BigQueryOptions.newBuilder().setProjectId("idyllic-kit-191017").setCredentials(credentials).build().getService();
@@ -87,187 +78,10 @@ public class PlasmaBigQueryTools {
 		return bigquery;
 	}
 	
-	
-	// Requires a json string of subreddit data 
-	public static int insertSubreddits (String subrJson, String databaseId, String tableName) {
-		
-		// Inserts subreddits in pools of 100 
-		
-		// Initialize
-		Gson gson = null;
-		RedditResponse response = null;
-		int childrenLength = 0;
-		String subredditId = null;
-		String subredditName = null;
-		int subredditSubscribers = 0;
-		String subredditDesc = null;
-		String subredditTarget = null;
-		
-		
-		// Build new gson object each cycle
-		gson = new GsonBuilder().setPrettyPrinting().create();
-		
-		// Get the response into the RedditResponse class
-		response = gson.fromJson(subrJson, RedditResponse.class);
-		
-		childrenLength = response.getData().getDist();
-		
-		subredditId = null;
-		subredditName = null;
-		subredditSubscribers = 0;
-		
-		// Acquire a big query connection, setup the insert 
-		
-		BigQuery bqconn = PlasmaBigQueryTools.Connect();
-		TableId tableId = TableId.of(databaseId, tableName);
-		
-		// Values of the row to insert
-		Map<String, Object> rowContent = new HashMap<>();
-		
-		// Setup the request
-		InsertAllRequest.Builder bq_request = InsertAllRequest.newBuilder(tableId);
-		
-		// Loop over each of the returned children (Subreddits in this case) 
-		
-		for (int j = 0; j < childrenLength; j++) {
-			
-			subredditId = "t5_" + response.getData().getChildren().get(j).getChildData().getId();
-			subredditName = response.getData().getChildren().get(j).getChildData().getSubrDisplayName();
-			subredditSubscribers = response.getData().getChildren().get(j).getChildData().getSubredditSubscribers();
-			subredditDesc = response.getData().getChildren().get(j).getChildData().getSubrPublicDesc();
-			subredditTarget = response.getData().getChildren().get(j).getChildData().getSubrTarget();
-			
-			/*  Useful print statement to see the subreddit data 
-			System.out.println(subredditId);
-			System.out.println(subredditName);
-			System.out.println(subredditSubscribers);
-			System.out.println(subredditDesc);
-			System.out.println(subredditTarget); */
-			
-			
-			// Prepare the row 
-			
-			rowContent.put("subr_id", subredditId);
-			rowContent.put("subr_name", subredditName);
-			rowContent.put("num_subscribers", subredditSubscribers);
-			rowContent.put("description", subredditDesc);
-			rowContent.put("audience_target", subredditTarget);
-			
-			// Add row to the request 
-			
-			bq_request = bq_request.addRow(rowContent);
-		}
-		
-		// Submit the rows as bulk to BQ 
-		
-		InsertAllResponse bq_response = bqconn.insertAll(bq_request.build());
-		
-		if (bq_response.hasErrors()) {
-			
-			  // If any of the insertions failed, this lets you inspect the errors
-			  for (Entry<Long, List<BigQueryError>> entry : bq_response.getInsertErrors().entrySet()) {
-				   Logger.getLogger(PlasmaBigQueryTools.class.getName()).log(Level.SEVERE, "BigQuery bulk insert failed", entry);
-			  }
-		}
-		
-		Logger.getLogger(PlasmaBigQueryTools.class.getName()).log(Level.INFO, "BigQuery bulk insert succeeded");
-		
-		return 0;
-	}
-
-	// Requires a json string of post data
-	
-	public static int insertPosts (String json, String databaseId, String tableName) {
-		
-		// Inserts posts in pools of 100 
-		
-		// Initialize
-		Gson gson = null;
-		RedditResponse response = null;
-		int childrenLength = 0;
-		String linkId = null;
-		String title = null;
-		String subredditFk = null;
-		String permaLink = null;
-		int numComments = 0;
-		int createdUTC = 0;
-		int score = 0;
-		String linkFlair = null;
-		Double controversiality = 0.0;
-		
-		
-		// Build new gson object each cycle
-		gson = new GsonBuilder().setPrettyPrinting().create();
-		
-		// Get the response into the RedditResponse class
-		response = gson.fromJson(json, RedditResponse.class);
-		
-		childrenLength = response.getData().getDist();
-		
-		// Acquire a big query connection, setup the insert 
-		
-		BigQuery bqconn = PlasmaBigQueryTools.Connect();
-		TableId tableId = TableId.of(databaseId, tableName);
-		
-		// Values of the row to insert
-		Map<String, Object> rowContent = new HashMap<>();
-		
-		// Setup the request
-		InsertAllRequest.Builder bq_request = InsertAllRequest.newBuilder(tableId);
-		
-		// Loop over each of the returned children (Subreddits in this case) 
-		
-		for (int j = 0; j < childrenLength; j++) {
-				
-			linkId = "t3_" + response.getData().getChildren().get(j).getChildData().getId();
-			title = response.getData().getChildren().get(j).getChildData().getTitle();
-			subredditFk = response.getData().getChildren().get(j).getChildData().getSubredditId();
-			permaLink = response.getData().getChildren().get(j).getChildData().getPermalink();
-			createdUTC = response.getData().getChildren().get(j).getChildData().getCreatedUtc();
-			score = response.getData().getChildren().get(j).getChildData().getScore();
-			numComments = response.getData().getChildren().get(j).getChildData().getNumComments();
-			linkFlair = response.getData().getChildren().get(j).getChildData().getLinkFlairText();
-			controversiality = response.getData().getChildren().get(j).getChildData().getControversiality();
-			
-			
-			// Prepare the row data
-			
-			rowContent.put("link_id", linkId);
-			rowContent.put("title", title);
-			rowContent.put("subreddit_id", subredditFk);
-			rowContent.put("permalink", permaLink);
-			rowContent.put("num_comments", numComments);
-			rowContent.put("created_utc", createdUTC);
-			rowContent.put("score", score);
-			rowContent.put("link_flair", linkFlair);
-			rowContent.put("controversiality", controversiality);
-			
-			
-			// Add row to the request 
-			
-			bq_request = bq_request.addRow(rowContent);
-		}
-		
-		// Submit the rows as bulk to BQ 
-		
-		InsertAllResponse bq_response = bqconn.insertAll(bq_request.build());
-		
-		if (bq_response.hasErrors()) {
-			
-			  // If any of the insertions failed, this lets you inspect the errors
-			  for (Entry<Long, List<BigQueryError>> entry : bq_response.getInsertErrors().entrySet()) {
-				   Logger.getLogger(PlasmaBigQueryTools.class.getName()).log(Level.SEVERE, "BigQuery bulk insert failed", entry);
-			  }
-		}
-		
-		Logger.getLogger(PlasmaBigQueryTools.class.getName()).log(Level.INFO, "BigQuery bulk insert succeeded");
-		
-		return 0;
-	}
-	
 	// Requires a json string of comment data 
 	
-	public static int insertComments (String json, String databaseId, String tableName) {
+	public static int insertComments (String json, String databaseId, String tableName,
+			GoogleCredentials credentials) {
 		
 		// Inserts subreddits in pools of 100 
 		
@@ -296,7 +110,7 @@ public class PlasmaBigQueryTools {
 		
 		// Acquire a big query connection, setup the insert 
 		
-		BigQuery bqconn = PlasmaBigQueryTools.Connect();
+		BigQuery bqconn = PlasmaBigQueryTools.Connect(credentials);
 		TableId tableId = TableId.of(databaseId, tableName);
 		
 		// Values of the row to insert
@@ -355,144 +169,28 @@ public class PlasmaBigQueryTools {
 			
 	}
 	
-	// Returns a list of subreddits 
-	public static List<String> getSubredditNames(String tablename) {
-		
-		List<String> subreddits = new ArrayList<String>();
-		
-		String query = "SELECT "
-	              + "subr_name "
-	              + "FROM `" 
-	              + tablename
-	              + "` ORDER BY num_subscribers desc";
-		
-		// Connect & Authenticate
-		BigQuery bqconn = PlasmaBigQueryTools.Connect();
-		
-		QueryJobConfiguration queryConfig =
-		        QueryJobConfiguration.newBuilder(query)
-		            // Use standard SQL syntax for queries.
-		            // See: https://cloud.google.com/bigquery/sql-reference/
-		            .setUseLegacySql(false)
-		            .build();
-
-	    // Create a job ID so that we can safely retry.
-	    JobId jobId = JobId.of(UUID.randomUUID().toString());
-	    Job queryJob = bqconn.create(JobInfo.newBuilder(queryConfig).setJobId(jobId).build());
-
-	    // Wait for the query to complete.
-	    try {
-			queryJob = queryJob.waitFor();
-		} catch (InterruptedException ex) {
-			Logger.getLogger(PlasmaBigQueryTools.class.getName()).log(Level.SEVERE, "Interrupted", ex);
-		}
-	    
-	    // Check for errors
-	    if (queryJob == null) {
-	      throw new RuntimeException("Job no longer exists");
-	    } else if (queryJob.getStatus().getError() != null) {
-	      // You can also look at queryJob.getStatus().getExecutionErrors() for all
-	      // errors, not just the latest one.
-	      throw new RuntimeException(queryJob.getStatus().getError().toString());
-	    }
-	    
-	    // Get the response from the job.
-	    QueryResponse response = bqconn.getQueryResults(jobId);
-
-	    // Get the results
-	    TableResult result=null;
-		try {
-			result = queryJob.getQueryResults();
-		} catch (JobException ex) {
-			Logger.getLogger(PlasmaBigQueryTools.class.getName()).log(Level.SEVERE, "JobException", ex);
-			ex.printStackTrace();
-		} catch (InterruptedException ex) {
-			Logger.getLogger(PlasmaBigQueryTools.class.getName()).log(Level.SEVERE, "Interrupted", ex);
-			ex.printStackTrace();
-		}
-
-	    // Add results to an array list
-	    for (FieldValueList row : result.iterateAll()) {
-	    	String name = row.get("subr_name").getStringValue();
-	    	//long viewCount = row.get("view_count").getLongValue(); Use this for integers/longs etc
-	    	subreddits.add(name);
-	    }
-	    
-		return subreddits;
-		
-	}
-	
-	public static int createTables (String projectId, String datasetId, String subrTableName, 
-			String postTableName, String commentTableName, int skipSubrTableCreate) { 
-		
-		BigQuery bqconn = PlasmaBigQueryTools.Connect(); // Get big query connection
-
-		if (skipSubrTableCreate == 0) {
-			
-			// ***************************** SUBR TABLE *******************************
-			TableId subrTable = TableId.of(datasetId, subrTableName);
-			// Table field definition
-			Field subr_id = Field.of("subr_id", LegacySQLTypeName.STRING);
-			Field subr_name = Field.of("subr_name", LegacySQLTypeName.STRING);
-			Field num_subscribers =  Field.of("num_subscribers", LegacySQLTypeName.INTEGER);
-			Field subr_cat = Field.of("subr_cat", LegacySQLTypeName.STRING);
-			Field description = Field.of("description", LegacySQLTypeName.STRING);
-			Field audience_target = Field.of("audience_target", LegacySQLTypeName.STRING);
-			
-			// Table schema definition
-			Schema subrSchema;
-			subrSchema = Schema.of(subr_id,subr_name, num_subscribers, subr_cat, description, audience_target);
-			
-			TableDefinition subrTableDefinition = StandardTableDefinition.of(subrSchema);
-			TableInfo tableInfo = TableInfo.newBuilder(subrTable, subrTableDefinition).build();
-			com.google.cloud.bigquery.Table table = bqconn.create(tableInfo);
-		}
-		
-		
-		// *********************** POSTS TABLE *************************
-		TableId postsTable = TableId.of(datasetId, postTableName);
-		// Table field definition
-		Field subr_id = Field.of("subr_id", LegacySQLTypeName.STRING);
-		Field subr_name = Field.of("subr_name", LegacySQLTypeName.STRING);
-		Field num_subscribers =  Field.of("num_subscribers", LegacySQLTypeName.INTEGER);
-		Field subr_cat = Field.of("subr_cat", LegacySQLTypeName.STRING);
-		Field description = Field.of("description", LegacySQLTypeName.STRING);
-		Field audience_target = Field.of("audience_target", LegacySQLTypeName.STRING);
-		
-		// Table schema definition
-		Schema postsSchema;
-		postsSchema = Schema.of(subr_id,subr_name, num_subscribers, subr_cat, description, audience_target);
-		
-		// Allow the table to partition
-		TimePartitioning timePartitioning = TimePartitioning.of(TimePartitioning.Type.DAY);
-		
-		TableDefinition subrTableDefinition = StandardTableDefinition.newBuilder().setSchema(postsSchema).
-				setTimePartitioning(timePartitioning).build();
-		
-		TableInfo tableInfo = TableInfo.newBuilder(postsTable, subrTableDefinition).build();
-		com.google.cloud.bigquery.Table table = bqconn.create(tableInfo);
-		  
-		
-		
-		return 0;
-		
-	}
 	
 	public static void main(String[] args) {
 		
-		
+		GoogleCredentials credentials = null;
+	    File credentialsPath = new File("C:\\PersonalWork\\files\\pubsub_key.json");  // Key path
+	    try (FileInputStream serviceAccountStream = new FileInputStream(credentialsPath)) {
+	        credentials = ServiceAccountCredentials.fromStream(serviceAccountStream);
+	    } catch (FileNotFoundException ex) {
+		  Logger.getLogger(PlasmaPubSubTools.class.getName()).log(Level.SEVERE, "File not found", ex);
+		 
+	    } catch (IOException ex) {
+		  Logger.getLogger(PlasmaPubSubTools.class.getName()).log(Level.SEVERE, "IOException", ex);
+	    }
+	    
 		// Sample how to use 
 		
-		BigQuery bqconn = PlasmaBigQueryTools.Connect();
+		BigQuery bqconn = PlasmaBigQueryTools.Connect(credentials);
 		// Use the client.
 		System.out.println("Datasets:");
 		for (com.google.cloud.bigquery.Dataset dataset : bqconn.listDatasets().iterateAll()) {
 		    System.out.printf("%s%n", dataset.getDatasetId().getDataset());
 		}
 		
-		PlasmaBigQueryTools.createTables("idyllic-kit-191017", "trendy", "subreddits",
-				"posts", "comments", 0);
-		
-	
 	}
 }
