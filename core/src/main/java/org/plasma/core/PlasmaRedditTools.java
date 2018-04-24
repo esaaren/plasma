@@ -337,7 +337,7 @@ public class PlasmaRedditTools {
 	public static int loadCommentsWithUrl (int numCalls, String url, String databaseId, 
 			String tableName, RedditToken token, GoogleCredentials credentials) {
 		
-		int subRedditLimit = 1;
+		int subRedditLimit = 100;
 		
 		// Initialize vars 
 		String getCommentJson = ""; // Json string holding the reddit response data for comments

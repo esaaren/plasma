@@ -63,7 +63,7 @@ public class PlasmaRedditPubSubtoBigQuery {
 	    Pipeline p = Pipeline.create(options);
 		p
 	    .apply(PubsubIO.readStrings().fromSubscription(SUB_NAME))
-	    .apply("PrintToStdout", ParDo.of(new DoFn<String, TableRow>() {
+	    .apply("ProcessRedditJsonData", ParDo.of(new DoFn<String, TableRow>() {
 	        @ProcessElement
 	        public void processElement(ProcessContext c) {
 	        	
@@ -78,6 +78,7 @@ public class PlasmaRedditPubSubtoBigQuery {
 	  		  String linkTitle = null;
 	  		  int createdUTC = 0;
 	  		  int score = 0;
+	  		  int childrenLength;
 	          
 	          // Build new gson object each cycle
 			  gson = new GsonBuilder().setPrettyPrinting().create();
@@ -85,29 +86,37 @@ public class PlasmaRedditPubSubtoBigQuery {
 			  // Get the response into the RedditResponse class
 			  response = gson.fromJson(c.element(), RedditResponse.class);
 	          
-			  commentId = "t1_" + response.getData().getChildren().get(0).getChildData().getId();
-			  postFk = response.getData().getChildren().get(0).getChildData().getLinkId();
-			  subredditFk = response.getData().getChildren().get(0).getChildData().getSubredditId();
-			  permaLink = response.getData().getChildren().get(0).getChildData().getPermalink();
-			  body = response.getData().getChildren().get(0).getChildData().getBody();
-			  subredditPrefix = response.getData().getChildren().get(0).getChildData().getSubredditNamePrefixed();
-			  linkTitle = response.getData().getChildren().get(0).getChildData().getLinkTitle();
-			  createdUTC = response.getData().getChildren().get(0).getChildData().getCreatedUtc();
-			  score = response.getData().getChildren().get(0).getChildData().getScore();
+			  childrenLength = response.getData().getDist();
 			  
-	          System.out.printf("Received at %s : %s\n", Instant.now(), body); // debug log
-	          
-	          TableRow row = new TableRow()
-	        		.set("comment_id", commentId)
-	      			.set("post_fk", postFk)
-	    			.set("subreddit_fk", subredditFk)
-	    			.set("body", body)
-	    			.set("score", score)
-	    			.set("created_utc", createdUTC)
-	    			.set("subreddit_prefix", subredditPrefix)
-	    			.set("link_title", linkTitle)
-	    			.set("permalink", permaLink);
-	            c.output(row);
+			  for (int i = 0; i < childrenLength; i++) {
+				  
+				  commentId = "t1_" + response.getData().getChildren().get(i).getChildData().getId();
+				  postFk = response.getData().getChildren().get(i).getChildData().getLinkId();
+				  subredditFk = response.getData().getChildren().get(i).getChildData().getSubredditId();
+				  permaLink = response.getData().getChildren().get(i).getChildData().getPermalink();
+				  body = response.getData().getChildren().get(i).getChildData().getBody();
+				  subredditPrefix = response.getData().getChildren().get(i).getChildData().getSubredditNamePrefixed();
+				  linkTitle = response.getData().getChildren().get(i).getChildData().getLinkTitle();
+				  createdUTC = response.getData().getChildren().get(i).getChildData().getCreatedUtc();
+				  score = response.getData().getChildren().get(i).getChildData().getScore();
+				  
+		         // System.out.printf("Received at %s : %s\n", Instant.now(), body); // debug log
+		          
+		          TableRow row = new TableRow()
+		        		.set("comment_id", commentId)
+		      			.set("post_fk", postFk)
+		    			.set("subreddit_fk", subredditFk)
+		    			.set("body", body)
+		    			.set("score", score)
+		    			.set("created_utc", createdUTC)
+		    			.set("subreddit_prefix", subredditPrefix)
+		    			.set("link_title", linkTitle)
+		    			.set("permalink", permaLink);
+		            c.output(row);
+				  
+			  }
+			  
+			
 	        }
 	      })).apply("InsertTableRowsToBigQuery",
 	    	      BigQueryIO.writeTableRows().to(BQ_DS)
