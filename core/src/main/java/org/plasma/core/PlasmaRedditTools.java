@@ -351,7 +351,7 @@ public class PlasmaRedditTools {
 		// Loop over based on limit given to get all posts and load them. 
 		for (int i = 0 ; i < numCalls; i ++) {
 			
-			System.out.println(i);
+			//System.out.println(i);
 			if (i==0) {
 				
 				// Get top 100 posts only on first loop
@@ -419,7 +419,7 @@ public class PlasmaRedditTools {
 		// Job execution
 		
 		// Each hour the token will expire, so the number of times to execute is synonymous with hours
-		int timesToExecute = 3;
+		int timesToExecute = 200;
 		
 		// Get reddit token object using plasma tools 
 		
@@ -431,8 +431,8 @@ public class PlasmaRedditTools {
 		Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO,"Token Expires in: " + token.getExpiresIn() );
 		
 		// Google creds so authentication can happen with BQ or pubsub
-		
-		GoogleCredentials bq_credentials = PlasmaGoogleCloudTools.getCredentials("bq");
+		// bq for bigquery pubsub for pub/sub
+		GoogleCredentials credentials = PlasmaGoogleCloudTools.getCredentials("pubsub");
 
 		
 		int loadResponse = 0;
@@ -441,7 +441,7 @@ public class PlasmaRedditTools {
 			try {
 				System.out.println("LOADING:");
 				loadResponse = PlasmaRedditTools.loadCommentsWithUrl(5000,
-						"r/all/comments", databaseId, commentTableName,	token, bq_credentials);
+						"r/all/comments", databaseId, commentTableName,	token, credentials);
 				if (loadResponse == 2) {
 					Logger.getLogger(PlasmaRedditTools.class.getName()).log(Level.INFO,"Token Has Expired, Authenticating again");
 					token = PlasmaRedditTools.getAuthToken("gluFwvMrQLqLuA", 
