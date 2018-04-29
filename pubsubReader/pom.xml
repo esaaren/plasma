@@ -108,5 +108,13 @@
     	<artifactId>google-api-client</artifactId>
     	<version>1.22.0</version>
 	</dependency>
+	<!-- Plasma core --> 
+	<dependency>
+        <groupId>org.plasma</groupId>
+        <artifactId>core</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <scope>system</scope>
+    	<systemPath>${project.basedir}/src/main/resources/plasmacore.jar</systemPath>
+    </dependency>
   </dependencies>
 </project>
