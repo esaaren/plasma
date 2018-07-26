@@ -1,0 +1,123 @@
+# coding: utf-8
+
+# In[1]:
+
+
+get_ipython().system(u'pip install tensorflow==1.9.0')
+get_ipython().system(u'pip install keras==2.1.0')
+
+
+# In[10]:
+
+
+
+import tensorflow as tf
+import keras
+from keras import backend as K
+from keras import layers, models
+from keras.utils import np_utils
+from keras.models import Sequential
+from keras.layers.core import Dense, Activation
+from keras.optimizers import SGD
+
+from tensorflow.python.saved_model import builder as saved_model_builder
+from tensorflow.python.saved_model import tag_constants, signature_constants
+from tensorflow.python.saved_model.signature_def_utils_impl import predict_signature_def
+import numpy as np
+
+
+# Create the mode function
+
+# In[8]:
+
+
+def create_model():
+  
+  # Two layers, init (initialization) uniform sets weights to uniform values between 0 & 0.05
+  # Can try setting init = normal will set to gaussian random with mu = 0 and std_dev = 0.05
+  
+  model = Sequential()
+  model.add(Dense(1, activation="tanh", kernel_initializer="uniform", input_dim=1))   # 1 input neuron expecting dimension 1
+  model.add(Dense(2, activation="sigmoid", kernel_initializer="uniform"))                # 2 hidden layer neurons
+  model.add(Dense(1, kernel_initializer="uniform"))
+  compile_model(model, 0.1, 0.99, 0.001, False)
+  return model
+
+
+# Compile model function
+
+# In[6]:
+
+
+def compile_model(model, learning_rate, mom, dec, nesterov_tf):
+  
+  # Compile model
+  # Using loss function as mean squared error, could try using others for diff. results
+  model.compile(loss='mse', optimizer=SGD(lr=learning_rate, momentum=mom, decay=dec, nesterov=nesterov_tf))
+  return model
+
+
+# Save the model to a tensorflow SavedModel
+
+# In[12]:
+
+
+def create_saved_model(model, export_path):
+  """Convert the Keras HDF5 model into TensorFlow SavedModel."""
+
+  builder = saved_model_builder.SavedModelBuilder(export_path)
+
+  signature = predict_signature_def(inputs={'input': model.inputs[0]},
+                                    outputs={'output': model.outputs[0]})
+
+
+  with K.get_session() as sess:
+    builder.add_meta_graph_and_variables(
+        sess=sess,
+        tags=[tag_constants.SERVING],
+        signature_def_map={
+            signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY: signature
+        }
+    )
+    builder.save()
+
+
+# Code here
+
+# In[13]:
+
+
+# fix random seed for reproducibility
+seed = 7
+
+np.random.seed(seed)
+
+data_len = 1000
+
+# Initialize X to a bunch of random values between -1 and 1 (just like sin)
+X = np.random.uniform(low=-1, high=1, size=data_len)
+
+# Set Y to calculate the X values using sin, this will be training set
+Y = np.empty(data_len)
+for i in xrange(len(Y)):
+  Y[i] = np.sin(X[i])
+
+# Create Model
+erik_nn = create_model()  
+
+
+
+# Fitting the model
+# Set epochs, batch size, how much % of data to use as training & shuffle the training each epoch
+# Can add      callbacks=[reduce_model_LR] into this as a parameter
+# Can add      stop_early as a callback as well
+erik_nn.fit(X, Y, epochs=1500, batch_size=400, validation_split=0.8, verbose=0)
+
+#print erik_nn.to_json()
+
+# Evaluate the model
+test = np.array([0.86])
+scores = erik_nn.predict(test)
+print(scores)
+
+create_saved_model(erik_nn, 'gs://erik-ml/test2')
