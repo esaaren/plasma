@@ -1,0 +1,134 @@
+# coding: utf-8
+
+# In[1]:
+
+
+import glob
+import os.path as path
+from scipy import misc
+import os
+
+import tensorflow as tf
+from tensorflow.python.platform import gfile
+from tensorflow.python.saved_model import builder as saved_model_builder
+from tensorflow.python.saved_model import tag_constants, signature_constants
+from tensorflow.python.saved_model.signature_def_utils_impl import predict_signature_def
+
+import keras
+from keras import backend as K
+from keras import layers, models
+from keras.utils import np_utils
+from keras.models import Sequential
+from keras.layers.core import Dense, Activation
+from keras.optimizers import SGD
+
+
+import numpy as np
+
+
+# In[39]:
+
+
+# Define the bucket location
+BUCKET_PATH = 'gs://erik-ml/images'
+BUCKET_PATH_PREDICT = 'gs://erik-ml/predict'
+
+print BUCKET_PATH
+
+
+# In[58]:
+
+
+# Create a numpy array of numpy array images and reshape the images to 299x299. The 1 dim is for the chanel 
+# which is black/white
+
+def get_inputs (bucket_path, num_files):
+  filelist= gfile.ListDirectory(bucket_path)
+  Y = np.zeros([num_files,2])
+  
+  #X = np.empty([NUM_FILES,299,299,1]) Not flattened
+
+  X = np.empty([num_files,4096]) # Flattened 
+
+  i = 0
+
+  sess = tf.Session()
+  with sess.as_default():
+    for filename in filelist:
+      
+      # Set the labels properly for each photo if its a car or not 
+      if 'car' in filename:
+        Y[i] = [1,0]
+      else: 
+        Y[i] = [0,1]
+
+      # Convert each image into an array (Can use jpeg or png on step 2 just change method accordingly)
+      image = tf.read_file(os.path.join(bucket_path, filename))
+      image = tf.image.decode_png(image,channels=1)
+      resized_image = tf.image.resize_images(image, [64, 64])
+      image_array = sess.run(resized_image)
+
+      # Add the image to the array (Trying it out with flattened for now)
+      X[i] = image_array.flatten()
+
+      # Not flattened
+      #X[i] = image_array
+
+      i = i + 1
+  
+  return X, Y
+
+  
+
+
+# In[59]:
+
+
+# Get the input data with the function
+
+NUM_FILES = 14
+
+X_inputs, Y_labels = get_inputs(BUCKET_PATH, NUM_FILES)
+
+print X_inputs.shape
+print Y_labels.shape
+
+print Y_labels
+
+
+# In[61]:
+
+
+# Build the keras model now 
+
+model = Sequential()
+
+model.add(Dense(4096, activation="tanh", kernel_initializer="uniform", input_dim=4096))   # 1 input neuron expecting dimension 1
+model.add(Dense(10, activation="sigmoid", kernel_initializer="uniform"))                # 2 hidden layer neurons
+model.add(Dense(2, kernel_initializer="uniform"))
+
+model.compile(loss='mse', optimizer=SGD(lr=0.1, momentum=0.99, decay=0.001, nesterov=False))
+
+model.fit(X_inputs, Y_labels, epochs=50, batch_size=7, validation_split=1, verbose=0)
+
+
+
+
+# In[62]:
+
+
+# Get the X prediction data set, the Y can be ingored since we don't actually know the label
+
+X_predict, Y_predict = get_inputs(BUCKET_PATH_PREDICT,1)
+
+print X_predict.shape
+
+
+# In[63]:
+
+
+# Make the prediction with the model
+
+prediction = model.predict(X_predict)
+
+print prediction
