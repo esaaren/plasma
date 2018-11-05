@@ -1,0 +1,9 @@
+create table trendy_data (
+	sourcename varchar(20),
+	article_id varchar(50),
+	article_url varchar(255),
+	article_content text,
+	sentiment_score float 
+);
+
+
