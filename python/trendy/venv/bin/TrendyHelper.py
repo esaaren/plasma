@@ -54,6 +54,7 @@ class TrendyHelper():
 
 
     def close_conn(self):
+        logger.info('Closing Trendybase connection')
         try:
             self.trendybase_conn.close()
         except:
